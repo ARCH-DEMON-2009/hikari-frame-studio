@@ -1,10 +1,12 @@
-
 import React, { useState } from 'react';
-import { Heart, ShoppingCart, Star } from 'lucide-react';
+import { Heart, ShoppingCart, Star, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCart } from '@/contexts/CartContext';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   price: number;
   image: string;
@@ -20,10 +22,28 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const { addItem } = useCart();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleAddToCart = () => {
-    console.log('Added to cart:', product.name);
-    // TODO: Implement cart functionality
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.image,
+      category: product.category
+    });
+    
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    });
+  };
+
+  const handleCustomize = () => {
+    navigate('/customize', { state: { product } });
   };
 
   const toggleWishlist = () => {
@@ -63,20 +83,34 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           />
         </button>
 
-        {/* Quick Add Button */}
+        {/* Action Buttons */}
         <div className={`absolute inset-x-3 bottom-3 transition-all duration-300 ${
           isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
         }`}>
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAddToCart();
-            }}
-            className="w-full btn-primary text-sm py-2"
-          >
-            <ShoppingCart className="w-4 h-4 mr-2" />
-            Quick Add
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToCart();
+              }}
+              className="flex-1 btn-primary text-sm py-2"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add
+            </Button>
+            {product.category?.toLowerCase().includes('frame') && (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCustomize();
+                }}
+                variant="secondary"
+                className="text-sm py-2"
+              >
+                Customize
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Category Badge */}
