@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProductManagement } from '@/components/admin/ProductManagement';
 import { OrderManagement } from '@/components/admin/OrderManagement';
+import { FrameManagement } from '@/components/admin/FrameManagement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const AdminPage = () => {
@@ -37,13 +38,18 @@ const AdminPage = () => {
         </div>
 
         <Tabs defaultValue="products" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="frames">Frame Styles</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
           </TabsList>
           
           <TabsContent value="products" className="mt-6">
             <ProductManagement />
+          </TabsContent>
+          
+          <TabsContent value="frames" className="mt-6">
+            <FrameManagement />
           </TabsContent>
           
           <TabsContent value="orders" className="mt-6">

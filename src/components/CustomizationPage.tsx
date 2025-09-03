@@ -1,22 +1,57 @@
 
-import React, { useState, useRef } from 'react';
-import { Upload, Download, RotateCw, ZoomIn, ZoomOut, Move } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Upload, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useCart } from '@/contexts/CartContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const CustomizationPage = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [selectedFrame, setSelectedFrame] = useState('classic-wood');
+  const [selectedFrame, setSelectedFrame] = useState('');
+  const [selectedSize, setSelectedSize] = useState('8x10 inches');
   const [imageScale, setImageScale] = useState(1);
   const [imageRotation, setImageRotation] = useState(0);
+  const [frameStyles, setFrameStyles] = useState([]);
+  const [loading, setLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { addItem } = useCart();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const frameStyles = [
-    { id: 'classic-wood', name: 'Classic Wood', price: 899, preview: '🟫' },
-    { id: 'modern-metal', name: 'Modern Metal', price: 1299, preview: '⬜' },
-    { id: 'vintage-gold', name: 'Vintage Gold', price: 1599, preview: '🟨' },
-    { id: 'minimalist-white', name: 'Minimalist White', price: 999, preview: '⬜' },
-  ];
+  useEffect(() => {
+    fetchFrameStyles();
+  }, []);
+
+  const fetchFrameStyles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('frame_styles')
+        .select('*')
+        .eq('is_available', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      const transformedFrames = data?.map(frame => ({
+        id: frame.id,
+        name: frame.name,
+        price: frame.price,
+        preview: frame.preview_emoji
+      })) || [];
+      
+      setFrameStyles(transformedFrames);
+      if (transformedFrames.length > 0) {
+        setSelectedFrame(transformedFrames[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching frame styles:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -34,6 +69,48 @@ const CustomizationPage = () => {
   };
 
   const selectedFrameData = frameStyles.find(frame => frame.id === selectedFrame);
+
+  const handleAddToCart = () => {
+    if (!uploadedImage) {
+      toast({
+        title: "Image required",
+        description: "Please upload an image first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!selectedFrameData) {
+      toast({
+        title: "Frame required",
+        description: "Please select a frame style",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const customItem = {
+      name: `Custom Frame - ${selectedFrameData.name}`,
+      price: (selectedFrameData.price || 0) + 199 + 99,
+      quantity: 1,
+      image: uploadedImage,
+      category: 'custom-frame',
+      customization: {
+        uploadedImage,
+        frameStyle: selectedFrameData.name,
+        size: selectedSize
+      }
+    };
+
+    addItem(customItem);
+    
+    toast({
+      title: "Added to cart",
+      description: "Your custom frame has been added to the cart",
+    });
+
+    navigate('/cart');
+  };
 
   return (
     <div className="min-h-screen bg-cream-50 py-8">
@@ -163,6 +240,8 @@ const CustomizationPage = () => {
                         type="radio"
                         name="size"
                         value={size}
+                        checked={selectedSize === size}
+                        onChange={(e) => setSelectedSize(e.target.value)}
                         className="w-4 h-4 text-blush-300"
                       />
                       <span className="text-charcoal-600">{size}</span>
@@ -196,7 +275,11 @@ const CustomizationPage = () => {
                   </div>
                 </div>
 
-                <Button className="btn-primary w-full mt-6">
+                <Button 
+                  className="btn-primary w-full mt-6"
+                  onClick={handleAddToCart}
+                  disabled={!uploadedImage || !selectedFrameData}
+                >
                   Add to Cart
                 </Button>
               </Card>

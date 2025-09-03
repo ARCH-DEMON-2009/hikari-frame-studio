@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      frame_styles: {
+        Row: {
+          created_at: string
+          id: string
+          is_available: boolean
+          name: string
+          preview_emoji: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_available?: boolean
+          name: string
+          preview_emoji?: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_available?: boolean
+          name?: string
+          preview_emoji?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           category: string | null

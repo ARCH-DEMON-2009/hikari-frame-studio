@@ -6,30 +6,128 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const CheckoutPage = () => {
-  const [paymentMethod, setPaymentMethod] = useState('razorpay');
+  const [paymentMethod, setPaymentMethod] = useState('RAZORPAY');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
   
-  const orderItems = [
-    { name: "Classic Wooden Frame", price: 899, quantity: 1, customization: "8x10 inches" },
-    { name: "Botanical Wall Sticker", price: 599, quantity: 2 }
-  ];
+  const { items, getTotalPrice, clearCart } = useCart();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const subtotal = 2097;
-  const shipping = 99;
-  const codFee = paymentMethod === 'cod' ? 100 : 0;
-  const total = subtotal + shipping + codFee;
+  const subtotal = getTotalPrice();
+  const shipping = subtotal > 0 ? 99 : 0;
+  const codFee = paymentMethod === 'COD' ? 100 : 0;
+  const discountAmount = 0; // Calculate based on business logic
+  const total = subtotal + shipping + codFee - discountAmount;
 
   const handlePlaceOrder = async () => {
+    if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
     
-    // Simulate payment processing
-    setTimeout(() => {
+    try {
+      const orderData = {
+        customer: customerInfo,
+        items: items,
+        paymentMethod: paymentMethod
+      };
+
+      const { data, error } = await supabase.functions.invoke('create-order', {
+        body: orderData,
+        headers: user ? {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        } : {}
+      });
+
+      if (error) throw error;
+
+      if (paymentMethod === 'RAZORPAY' && data.razorpayOrder) {
+        // Initialize Razorpay
+        const options = {
+          key: 'rzp_test_demo', // Replace with your Razorpay key
+          amount: data.razorpayOrder.amount,
+          currency: data.razorpayOrder.currency,
+          name: 'Hikari',
+          description: 'Order Payment',
+          order_id: data.razorpayOrder.id,
+          handler: async function (response: any) {
+            try {
+              const verifyData = {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                order_id: data.orderId
+              };
+
+              const { error: verifyError } = await supabase.functions.invoke('verify-payment', {
+                body: verifyData
+              });
+
+              if (verifyError) throw verifyError;
+
+              clearCart();
+              toast({
+                title: "Order Placed Successfully!",
+                description: "You will receive a confirmation email shortly",
+              });
+              navigate('/orders');
+            } catch (error) {
+              console.error('Payment verification failed:', error);
+              toast({
+                title: "Payment Verification Failed",
+                description: "Please contact support",
+                variant: "destructive",
+              });
+            }
+          },
+          prefill: {
+            name: customerInfo.name,
+            email: customerInfo.email,
+            contact: customerInfo.phone
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+      } else {
+        // COD Order
+        clearCart();
+        toast({
+          title: "Order Placed Successfully!",
+          description: "Your order will be delivered in 3-5 business days",
+        });
+        navigate('/orders');
+      }
+    } catch (error) {
+      console.error('Error placing order:', error);
+      toast({
+        title: "Order Failed",
+        description: "Please try again or contact support",
+        variant: "destructive",
+      });
+    } finally {
       setIsProcessing(false);
-      // Redirect to success page or show success message
-      console.log('Order placed successfully!');
-    }, 2000);
+    }
   };
 
   return (
@@ -69,33 +167,46 @@ const CheckoutPage = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" className="input-elegant" placeholder="John" />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" className="input-elegant" placeholder="Doe" />
+                  <div className="md:col-span-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input 
+                      id="name" 
+                      value={customerInfo.name}
+                      onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
+                      placeholder="John Doe" 
+                      required 
+                    />
                   </div>
                   <div className="md:col-span-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" className="input-elegant" placeholder="john@example.com" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      value={customerInfo.email}
+                      onChange={(e) => setCustomerInfo({...customerInfo, email: e.target.value})}
+                      placeholder="john@example.com" 
+                      required 
+                    />
                   </div>
                   <div className="md:col-span-2">
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" className="input-elegant" placeholder="+91 98765 43210" />
+                    <Input 
+                      id="phone" 
+                      value={customerInfo.phone}
+                      onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})}
+                      placeholder="+91 98765 43210" 
+                      required 
+                    />
                   </div>
                   <div className="md:col-span-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input id="address" className="input-elegant" placeholder="123 Main Street" />
-                  </div>
-                  <div>
-                    <Label htmlFor="city">City</Label>
-                    <Input id="city" className="input-elegant" placeholder="Mumbai" />
-                  </div>
-                  <div>
-                    <Label htmlFor="pincode">Pincode</Label>
-                    <Input id="pincode" className="input-elegant" placeholder="400001" />
+                    <Label htmlFor="address">Complete Address</Label>
+                    <Input 
+                      id="address" 
+                      value={customerInfo.address}
+                      onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
+                      placeholder="123 Main Street, City, State, Pincode" 
+                      required 
+                    />
                   </div>
                 </div>
               </Card>
@@ -112,7 +223,7 @@ const CheckoutPage = () => {
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3 p-4 border border-cream-200 rounded-lg">
-                      <RadioGroupItem value="razorpay" id="razorpay" />
+                      <RadioGroupItem value="RAZORPAY" id="razorpay" />
                       <label htmlFor="razorpay" className="flex-1 cursor-pointer">
                         <div className="font-medium text-charcoal-700">Online Payment</div>
                         <div className="text-sm text-charcoal-600">
@@ -123,7 +234,7 @@ const CheckoutPage = () => {
                     </div>
 
                     <div className="flex items-center space-x-3 p-4 border border-cream-200 rounded-lg">
-                      <RadioGroupItem value="cod" id="cod" />
+                      <RadioGroupItem value="COD" id="cod" />
                       <label htmlFor="cod" className="flex-1 cursor-pointer">
                         <div className="font-medium text-charcoal-700">Cash on Delivery</div>
                         <div className="text-sm text-charcoal-600">
@@ -156,12 +267,15 @@ const CheckoutPage = () => {
 
                 {/* Order Items */}
                 <div className="space-y-4 mb-6">
-                  {orderItems.map((item, index) => (
+                  {items.map((item, index) => (
                     <div key={index} className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="font-medium text-charcoal-700">{item.name}</div>
                         {item.customization && (
-                          <div className="text-sm text-charcoal-600">{item.customization}</div>
+                          <div className="text-sm text-charcoal-600">
+                            {item.customization.frameStyle && `Frame: ${item.customization.frameStyle}`}
+                            {item.customization.size && `, Size: ${item.customization.size}`}
+                          </div>
                         )}
                         <div className="text-sm text-charcoal-600">Qty: {item.quantity}</div>
                       </div>
@@ -180,7 +294,7 @@ const CheckoutPage = () => {
                     <span className="text-charcoal-600">Shipping</span>
                     <span className="font-medium">₹{shipping}</span>
                   </div>
-                  {paymentMethod === 'cod' && (
+                  {paymentMethod === 'COD' && (
                     <div className="flex justify-between">
                       <span className="text-charcoal-600">COD Fee</span>
                       <span className="font-medium">₹{codFee}</span>
