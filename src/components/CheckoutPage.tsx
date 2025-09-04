@@ -52,11 +52,13 @@ const CheckoutPage = () => {
         paymentMethod: paymentMethod
       };
 
+      const authHeaders = user ? {
+        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+      } : {};
+
       const { data, error } = await supabase.functions.invoke('create-order', {
         body: orderData,
-        headers: user ? {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        } : {}
+        headers: authHeaders
       });
 
       if (error) throw error;
@@ -64,7 +66,7 @@ const CheckoutPage = () => {
       if (paymentMethod === 'RAZORPAY' && data.razorpayOrder) {
         // Initialize Razorpay
         const options = {
-          key: 'rzp_test_demo', // Replace with your Razorpay key
+          key: 'rzp_test_3PEbF5jxiHv6AD', // Your Razorpay key
           amount: data.razorpayOrder.amount,
           currency: data.razorpayOrder.currency,
           name: 'Hikari',

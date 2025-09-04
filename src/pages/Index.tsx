@@ -69,10 +69,10 @@ const Index = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="#" className="text-foreground hover:text-primary transition-colors">Frames</Link>
-              <Link to="#" className="text-foreground hover:text-primary transition-colors">Wall Stickers</Link>
-              <Link to="#" className="text-foreground hover:text-primary transition-colors">Posters</Link>
-              <Link to="#" className="text-foreground hover:text-primary transition-colors">Custom</Link>
+              <Link to="/products?category=frames" className="text-foreground hover:text-primary transition-colors">Frames</Link>
+              <Link to="/products?category=stickers" className="text-foreground hover:text-primary transition-colors">Wall Stickers</Link>
+              <Link to="/products?category=posters" className="text-foreground hover:text-primary transition-colors">Posters</Link>
+              <Link to="/customize" className="text-foreground hover:text-primary transition-colors">Custom</Link>
             </div>
 
             {/* Search and Icons */}
@@ -83,6 +83,14 @@ const Index = () => {
                   type="text"
                   placeholder="Search products..."
                   className="pl-10 pr-4 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const searchTerm = e.currentTarget.value.trim();
+                      if (searchTerm) {
+                        navigate(`/products?search=${encodeURIComponent(searchTerm)}`);
+                      }
+                    }
+                  }}
                 />
               </div>
               <Heart className="w-6 h-6 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
@@ -140,12 +148,20 @@ const Index = () => {
                 type="text"
                 placeholder="Search products..."
                 className="w-full px-3 py-2 border border-input rounded-md"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const searchTerm = e.currentTarget.value.trim();
+                    if (searchTerm) {
+                      navigate(`/products?search=${encodeURIComponent(searchTerm)}`);
+                    }
+                  }
+                }}
               />
               <div className="flex flex-col space-y-2">
-                <Link to="#" className="text-foreground hover:text-primary py-2">Frames</Link>
-                <Link to="#" className="text-foreground hover:text-primary py-2">Wall Stickers</Link>
-                <Link to="#" className="text-foreground hover:text-primary py-2">Posters</Link>
-                <Link to="#" className="text-foreground hover:text-primary py-2">Custom</Link>
+                <Link to="/products?category=frames" className="text-foreground hover:text-primary py-2">Frames</Link>
+                <Link to="/products?category=stickers" className="text-foreground hover:text-primary py-2">Wall Stickers</Link>
+                <Link to="/products?category=posters" className="text-foreground hover:text-primary py-2">Posters</Link>
+                <Link to="/customize" className="text-foreground hover:text-primary py-2">Custom</Link>
               </div>
               {user ? (
                 <div className="flex flex-col space-y-2 pt-2 border-t">
@@ -205,8 +221,8 @@ const Index = () => {
           )}
 
           <div className="text-center mt-12" id="products">
-            <Button>
-              View All Products
+            <Button asChild>
+              <Link to="/products">View All Products</Link>
             </Button>
           </div>
         </div>
@@ -229,7 +245,7 @@ const Index = () => {
               <h3 className="text-xl font-semibold text-foreground mb-2">Photo Frames</h3>
               <p className="text-muted-foreground mb-4">Premium frames in various styles and sizes</p>
               <Button variant="outline" asChild>
-                <Link to="/#products">Shop Frames</Link>
+                <Link to="/products?category=frames">Shop Frames</Link>
               </Button>
             </div>
 
@@ -240,7 +256,7 @@ const Index = () => {
               <h3 className="text-xl font-semibold text-foreground mb-2">Wall Stickers</h3>
               <p className="text-muted-foreground mb-4">Artistic decals to personalize your walls</p>
               <Button variant="outline" asChild>
-                <Link to="/#products">Shop Stickers</Link>
+                <Link to="/products?category=stickers">Shop Stickers</Link>
               </Button>
             </div>
 
@@ -251,7 +267,7 @@ const Index = () => {
               <h3 className="text-xl font-semibold text-foreground mb-2">Posters</h3>
               <p className="text-muted-foreground mb-4">Curated collection of art and photography prints</p>
               <Button variant="outline" asChild>
-                <Link to="/#products">Shop Posters</Link>
+                <Link to="/products?category=posters">Shop Posters</Link>
               </Button>
             </div>
           </div>

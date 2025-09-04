@@ -17,9 +17,10 @@ interface Product {
 
 interface ProductCardProps {
   product: Product;
+  viewMode?: 'grid' | 'list';
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const { addItem } = useCart();
@@ -50,11 +51,95 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     setIsWishlisted(!isWishlisted);
   };
 
+  const handleProductClick = () => {
+    navigate(`/product/${product.id}`);
+  };
+
+  if (viewMode === 'list') {
+    return (
+      <div 
+        className="card-elegant p-4 group cursor-pointer animate-fade-in flex gap-4"
+        onClick={handleProductClick}
+      >
+        <div className="w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-cream-200 to-blush-100">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="flex-1 space-y-2">
+          <div className="flex justify-between">
+            <h3 className="font-display font-semibold text-charcoal-700">{product.name}</h3>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleWishlist();
+              }}
+              className={`p-2 rounded-full transition-all duration-300 ${
+                isWishlisted 
+                  ? 'bg-blush-300 text-charcoal-700' 
+                  : 'hover:bg-blush-200'
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
+            </button>
+          </div>
+          <p className="text-sm text-charcoal-600 capitalize">{product.category}</p>
+          <div className="flex items-center gap-1">
+            <div className="flex">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={`w-3 h-3 ${
+                    i < Math.floor(product.rating)
+                      ? 'text-gold-500 fill-current'
+                      : 'text-cream-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-xs text-charcoal-600">
+              {product.rating} ({product.reviews})
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold text-charcoal-700">₹{product.price}</span>
+            <div className="flex gap-2">
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddToCart();
+                }}
+                className="btn-primary text-sm"
+              >
+                Add to Cart
+              </Button>
+              {product.category?.toLowerCase().includes('frame') && (
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCustomize();
+                  }}
+                  variant="secondary"
+                  className="text-sm"
+                >
+                  Customize
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="card-elegant p-4 group cursor-pointer animate-fade-in"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleProductClick}
     >
       {/* Product Image */}
       <div className="relative aspect-square mb-4 overflow-hidden rounded-lg bg-gradient-to-br from-cream-200 to-blush-100">

@@ -41,7 +41,7 @@ const Hero = () => {
                 </Link>
               </Button>
               <Button variant="outline" className="btn-secondary" asChild>
-                <Link to="/#products">Browse Collection</Link>
+                <Link to="/products">Browse Collection</Link>
               </Button>
             </div>
 
