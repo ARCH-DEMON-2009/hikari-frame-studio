@@ -204,7 +204,7 @@ const Index = () => {
             </div>
           )}
 
-          <div className="text-center mt-12">
+          <div className="text-center mt-12" id="products">
             <Button>
               View All Products
             </Button>
@@ -228,7 +228,9 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">Photo Frames</h3>
               <p className="text-muted-foreground mb-4">Premium frames in various styles and sizes</p>
-              <Button variant="outline">Shop Frames</Button>
+              <Button variant="outline" asChild>
+                <Link to="/#products">Shop Frames</Link>
+              </Button>
             </div>
 
             <div className="bg-card p-8 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all">
@@ -237,7 +239,9 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">Wall Stickers</h3>
               <p className="text-muted-foreground mb-4">Artistic decals to personalize your walls</p>
-              <Button variant="outline">Shop Stickers</Button>
+              <Button variant="outline" asChild>
+                <Link to="/#products">Shop Stickers</Link>
+              </Button>
             </div>
 
             <div className="bg-card p-8 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all">
@@ -246,7 +250,9 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">Posters</h3>
               <p className="text-muted-foreground mb-4">Curated collection of art and photography prints</p>
-              <Button variant="outline">Shop Posters</Button>
+              <Button variant="outline" asChild>
+                <Link to="/#products">Shop Posters</Link>
+              </Button>
             </div>
           </div>
         </div>

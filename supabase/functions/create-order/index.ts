@@ -43,10 +43,27 @@ serve(async (req) => {
       }
     }
 
+    // Fetch shipping settings from database
+    const { data: settings } = await supabaseService
+      .from('settings')
+      .select('key, value')
+      .in('key', ['shipping_cost', 'free_shipping_threshold', 'cod_charge']);
+    
+    const settingsMap = {};
+    settings?.forEach(setting => {
+      settingsMap[setting.key] = parseFloat(setting.value);
+    });
+    
     // Calculate pricing
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const deliveryCharge = 0; // Free shipping for now
-    const codCharge = paymentMethod === 'COD' ? 100 : 0;
+    
+    // Apply shipping based on settings
+    const shippingCost = settingsMap.shipping_cost || 50;
+    const freeShippingThreshold = settingsMap.free_shipping_threshold || 1000;
+    const codChargeAmount = settingsMap.cod_charge || 30;
+    
+    const deliveryCharge = subtotal >= freeShippingThreshold ? 0 : shippingCost;
+    const codCharge = paymentMethod === 'COD' ? codChargeAmount : 0;
     
     // Apply discount for 5+ frames
     let discountAmount = 0;
@@ -111,16 +128,23 @@ serve(async (req) => {
 
     // Handle Razorpay for online payments
     if (paymentMethod === 'RAZORPAY') {
+      const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID');
       const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
-      if (!razorpayKeySecret) {
-        throw new Error('Razorpay key secret not configured');
+      
+      console.log('Razorpay credentials check:', { 
+        keyId: razorpayKeyId ? 'present' : 'missing',
+        keySecret: razorpayKeySecret ? 'present' : 'missing'
+      });
+      
+      if (!razorpayKeyId || !razorpayKeySecret) {
+        throw new Error('Razorpay credentials not configured properly');
       }
 
       // Create Razorpay order
       const razorpayResponse = await fetch('https://api.razorpay.com/v1/orders', {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${btoa(`rzp_test_demo:${razorpayKeySecret}`)}`,
+          'Authorization': `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({

@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProductManagement } from '@/components/admin/ProductManagement';
 import { OrderManagement } from '@/components/admin/OrderManagement';
 import { FrameManagement } from '@/components/admin/FrameManagement';
+import { SettingsManagement } from '@/components/admin/SettingsManagement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const AdminPage = () => {
@@ -38,10 +39,11 @@ const AdminPage = () => {
         </div>
 
         <Tabs defaultValue="products" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="frames">Frame Styles</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
           
           <TabsContent value="products" className="mt-6">
@@ -54,6 +56,10 @@ const AdminPage = () => {
           
           <TabsContent value="orders" className="mt-6">
             <OrderManagement />
+          </TabsContent>
+          
+          <TabsContent value="settings" className="mt-6">
+            <SettingsManagement />
           </TabsContent>
         </Tabs>
       </div>

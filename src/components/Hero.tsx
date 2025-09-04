@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
@@ -33,12 +34,14 @@ const Hero = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button className="btn-primary group">
-                Customize Now
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <Button className="btn-primary group" asChild>
+                <Link to="/customize">
+                  Customize Now
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
               </Button>
-              <Button variant="outline" className="btn-secondary">
-                Browse Collection
+              <Button variant="outline" className="btn-secondary" asChild>
+                <Link to="/#products">Browse Collection</Link>
               </Button>
             </div>
 
@@ -68,7 +71,9 @@ const Hero = () => {
                 </div>
                 <h3 className="font-display font-semibold text-charcoal-700 mb-2">Custom Photo Frame</h3>
                 <p className="text-charcoal-600 text-sm mb-4">Upload your image and see the magic happen</p>
-                <Button className="btn-gold w-full">Try It Now</Button>
+                <Button className="btn-gold w-full" asChild>
+                  <Link to="/customize">Try It Now</Link>
+                </Button>
               </div>
             </div>
             
