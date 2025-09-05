@@ -1,5 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { CreditCard, Truck, Shield, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { loadScript } from '@/lib/utils'; React, { useState } from 'react';
 import { CreditCard, Truck, Shield, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -33,7 +39,21 @@ const CheckoutPage = () => {
   const discountAmount = 0; // Calculate based on business logic
   const total = subtotal + shipping + codFee - discountAmount;
 
+    useEffect(() => {
+    loadScript('https://checkout.razorpay.com/v1/checkout.js');
+  }, []);
+
   const handlePlaceOrder = async () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to place an order",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
       toast({
         title: "Missing Information",
@@ -49,7 +69,8 @@ const CheckoutPage = () => {
       const orderData = {
         customer: customerInfo,
         items: items,
-        paymentMethod: paymentMethod
+        paymentMethod: paymentMethod,
+        total: total
       };
 
       const authHeaders = user ? {
@@ -63,29 +84,39 @@ const CheckoutPage = () => {
 
       if (error) throw error;
 
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to create order');
+      }
+
       if (paymentMethod === 'RAZORPAY' && data.razorpayOrder) {
+        // Check if Razorpay is loaded
+        if (!(window as any).Razorpay) {
+          throw new Error('Razorpay SDK failed to load');
+        }
+
         // Initialize Razorpay
         const options = {
-          key: 'rzp_test_3PEbF5jxiHv6AD', // Your Razorpay key
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Get from environment variable
           amount: data.razorpayOrder.amount,
           currency: data.razorpayOrder.currency,
-          name: 'Hikari',
-          description: 'Order Payment',
+          name: 'Hikari Frame Studio',
+          description: `Order #${data.orderId}`,
           order_id: data.razorpayOrder.id,
           handler: async function (response: any) {
             try {
               const verifyData = {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                order_id: data.orderId
+                razorpay_signature: response.razorpay_signature
               };
 
-              const { error: verifyError } = await supabase.functions.invoke('verify-payment', {
+              const { error: verifyError, data: verifyResponse } = await supabase.functions.invoke('verify-payment', {
                 body: verifyData
               });
 
-              if (verifyError) throw verifyError;
+              if (verifyError || !verifyResponse?.success) {
+                throw new Error(verifyError?.message || 'Payment verification failed');
+              }
 
               clearCart();
               toast({
@@ -97,8 +128,18 @@ const CheckoutPage = () => {
               console.error('Payment verification failed:', error);
               toast({
                 title: "Payment Verification Failed",
-                description: "Please contact support",
+                description: "Please try again or contact support",
                 variant: "destructive",
+              });
+            }
+          },
+          modal: {
+            ondismiss: function() {
+              setIsProcessing(false);
+              toast({
+                title: "Payment Cancelled",
+                description: "You can try again or choose a different payment method",
+                variant: "default",
               });
             }
           },
@@ -106,10 +147,23 @@ const CheckoutPage = () => {
             name: customerInfo.name,
             email: customerInfo.email,
             contact: customerInfo.phone
+          },
+          theme: {
+            color: '#4F46E5'
           }
         };
 
         const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', function (response: any) {
+          console.error('Payment failed:', response.error);
+          toast({
+            title: "Payment Failed",
+            description: response.error.description || "Please try again or choose a different payment method",
+            variant: "destructive",
+          });
+          setIsProcessing(false);
+        });
+        
         rzp.open();
       } else {
         // COD Order
