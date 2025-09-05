@@ -126,65 +126,9 @@ serve(async (req) => {
       throw itemsError;
     }
 
-    // Handle Razorpay for online payments
-    if (paymentMethod === 'RAZORPAY') {
-      const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID');
-      const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
-      
-      console.log('Razorpay credentials check:', { 
-        keyId: razorpayKeyId ? 'present' : 'missing',
-        keySecret: razorpayKeySecret ? 'present' : 'missing'
-      });
-      
-      if (!razorpayKeyId || !razorpayKeySecret) {
-        throw new Error('Razorpay credentials not configured properly');
-      }
-
-      // Create Razorpay order
-      const razorpayResponse = await fetch('https://api.razorpay.com/v1/orders', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          amount: Math.round(total * 100), // Convert to paise
-          currency: 'INR',
-          receipt: `order_rcpt_${order.id}`
-        })
-      });
-
-      const responseText = await razorpayResponse.text();
-      console.log('Razorpay API response status:', razorpayResponse.status);
-      console.log('Razorpay API response:', responseText);
-
-      if (!razorpayResponse.ok) {
-        throw new Error(`Failed to create Razorpay order: ${responseText}`);
-      }
-
-      const razorpayOrder = JSON.parse(responseText);
-      console.log('Razorpay order created:', razorpayOrder);
-
-
-      // Update order with Razorpay order ID
-      const { error: updateError } = await supabaseService
-        .from('orders')
-        .update({ razorpay_order_id: razorpayOrder.id })
-        .eq('id', order.id);
-
-      if (updateError) {
-        console.error('Error updating order with Razorpay ID:', updateError);
-        throw new Error('Failed to update order with payment details');
-      }
-
-      return new Response(JSON.stringify({ 
-        success: true, 
-        orderId: order.id,
-        razorpayOrder: razorpayOrder,
-        discountApplied: discountAmount > 0
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+    // Only COD orders are processed now - online payment coming soon
+    if (paymentMethod !== 'COD') {
+      throw new Error('Only Cash on Delivery is available at the moment. Online payment coming soon.');
     }
 
     // COD - return order details
