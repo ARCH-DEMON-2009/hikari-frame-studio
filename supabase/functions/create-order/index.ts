@@ -154,12 +154,17 @@ serve(async (req) => {
         })
       });
 
-      const razorpayOrder = await razorpayResponse.json();
-      console.log('Razorpay order created:', razorpayOrder);
+      const responseText = await razorpayResponse.text();
+      console.log('Razorpay API response status:', razorpayResponse.status);
+      console.log('Razorpay API response:', responseText);
 
       if (!razorpayResponse.ok) {
-        throw new Error(`Razorpay error: ${razorpayOrder.error?.description || 'Unknown error'}`);
+        throw new Error(`Failed to create Razorpay order: ${responseText}`);
       }
+
+      const razorpayOrder = JSON.parse(responseText);
+      console.log('Razorpay order created:', razorpayOrder);
+
 
       // Update order with Razorpay order ID
       await supabaseService

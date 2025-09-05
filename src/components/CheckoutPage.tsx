@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CreditCard, Truck, Shield, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -27,13 +27,53 @@ const CheckoutPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const [settings, setSettings] = useState({
+    shipping_cost: 99,
+    free_shipping_threshold: 999,
+    cod_charge: 100
+  });
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('settings')
+        .select('key, value')
+        .in('key', ['shipping_cost', 'free_shipping_threshold', 'cod_charge']);
+      
+      if (error) throw error;
+      
+      const settingsMap = data.reduce((acc, item) => {
+        acc[item.key] = parseFloat(item.value);
+        return acc;
+      }, {} as any);
+      
+      setSettings(prev => ({ ...prev, ...settingsMap }));
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
+
   const subtotal = getTotalPrice();
-  const shipping = subtotal > 0 ? 99 : 0;
-  const codFee = paymentMethod === 'COD' ? 100 : 0;
+  const shipping = subtotal >= settings.free_shipping_threshold ? 0 : settings.shipping_cost;
+  const codFee = paymentMethod === 'COD' ? settings.cod_charge : 0;
   const discountAmount = 0; // Calculate based on business logic
   const total = subtotal + shipping + codFee - discountAmount;
 
   const handlePlaceOrder = async () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to place an order",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
       toast({
         title: "Missing Information",
@@ -240,7 +280,7 @@ const CheckoutPage = () => {
                       <label htmlFor="cod" className="flex-1 cursor-pointer">
                         <div className="font-medium text-charcoal-700">Cash on Delivery</div>
                         <div className="text-sm text-charcoal-600">
-                          Pay when your order is delivered (Additional ₹100 fee)
+                          Pay when your order is delivered (Additional ₹{settings.cod_charge} fee)
                         </div>
                       </label>
                     </div>
