@@ -26,6 +26,7 @@ interface Order {
     qty: number;
     unit_price: number;
     image_url: string;
+    custom_image_url?: string;
   }[];
 }
 
@@ -192,14 +193,24 @@ export const OrderManagement = () => {
                           className="w-12 h-12 object-cover rounded"
                         />
                       )}
-                      <div className="flex-1">
-                        <h4 className="font-medium">{item.title}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {item.category && `${item.category} • `}
-                          Quantity: {item.qty} × ₹{item.unit_price}
-                        </p>
-                      </div>
-                      <p className="font-medium">₹{item.qty * item.unit_price}</p>
+                       <div className="flex-1">
+                         <h4 className="font-medium">{item.title}</h4>
+                         <p className="text-sm text-muted-foreground">
+                           {item.category && `${item.category} • `}
+                           Quantity: {item.qty} × ₹{item.unit_price}
+                         </p>
+                         {item.custom_image_url && (
+                           <Button 
+                             size="sm" 
+                             variant="outline" 
+                             className="mt-2"
+                             onClick={() => window.open(item.custom_image_url, '_blank')}
+                           >
+                             Download Custom Image
+                           </Button>
+                         )}
+                       </div>
+                       <p className="font-medium">₹{item.qty * item.unit_price}</p>
                     </div>
                   ))}
                 </div>

@@ -9,7 +9,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 
 const ProductDetailPage = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -21,20 +21,31 @@ const ProductDetailPage = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   useEffect(() => {
-    if (id) {
+    if (slug) {
       fetchProduct();
     }
-  }, [id]);
+  }, [slug]);
 
   const fetchProduct = async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
+      // Try to fetch by slug first, then by ID if slug doesn't work
+      let query = supabase.from('products').select('*');
+      
+      // Check if slug is actually an ID (UUID format)
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+      
+      if (isUUID) {
+        query = query.eq('id', slug);
+      } else {
+        query = query.eq('slug', slug);
+      }
+      
+      const { data, error } = await query.maybeSingle();
 
-      if (error) throw error;
+      if (error || !data) {
+        console.error('Error fetching product:', error);
+        throw new Error('Product not found');
+      }
       
       const transformedProduct = {
         id: data.id,

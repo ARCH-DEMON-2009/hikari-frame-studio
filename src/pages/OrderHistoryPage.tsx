@@ -157,9 +157,11 @@ const OrderHistoryPage = () => {
                     <Badge className={getStatusColor(order.status)}>
                       {order.status}
                     </Badge>
-                    <Badge className={getPaymentStatusColor(order.payment_status)}>
-                      {order.payment_status}
-                    </Badge>
+                    {order.status !== 'DELIVERED' && (
+                      <Badge className={getPaymentStatusColor(order.payment_status)}>
+                        {order.payment_status}
+                      </Badge>
+                    )}
                   </div>
                 </div>
               </CardHeader>

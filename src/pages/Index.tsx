@@ -238,36 +238,45 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-card p-8 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all">
+            <div 
+              className="bg-card p-8 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all"
+              onClick={() => navigate('/products?category=frame')}
+            >
               <div className="w-16 h-16 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <span className="text-2xl">🖼️</span>
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">Photo Frames</h3>
               <p className="text-muted-foreground mb-4">Premium frames in various styles and sizes</p>
-              <Button variant="outline" asChild>
-                <Link to="/products?category=frames">Shop Frames</Link>
+              <Button variant="outline">
+                Shop Frames
               </Button>
             </div>
 
-            <div className="bg-card p-8 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all">
+            <div 
+              className="bg-card p-8 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all"
+              onClick={() => navigate('/products?category=sticker')}
+            >
               <div className="w-16 h-16 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <span className="text-2xl">🎨</span>
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">Wall Stickers</h3>
               <p className="text-muted-foreground mb-4">Artistic decals to personalize your walls</p>
-              <Button variant="outline" asChild>
-                <Link to="/products?category=stickers">Shop Stickers</Link>
+              <Button variant="outline">
+                Shop Stickers
               </Button>
             </div>
 
-            <div className="bg-card p-8 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all">
+            <div 
+              className="bg-card p-8 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all"
+              onClick={() => navigate('/products?category=poster')}
+            >
               <div className="w-16 h-16 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <span className="text-2xl">📜</span>
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">Posters</h3>
               <p className="text-muted-foreground mb-4">Curated collection of art and photography prints</p>
-              <Button variant="outline" asChild>
-                <Link to="/products?category=posters">Shop Posters</Link>
+              <Button variant="outline">
+                Shop Posters
               </Button>
             </div>
           </div>
