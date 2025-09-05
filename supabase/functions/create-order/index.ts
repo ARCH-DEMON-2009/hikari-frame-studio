@@ -167,10 +167,15 @@ serve(async (req) => {
 
 
       // Update order with Razorpay order ID
-      await supabaseService
+      const { error: updateError } = await supabaseService
         .from('orders')
         .update({ razorpay_order_id: razorpayOrder.id })
         .eq('id', order.id);
+
+      if (updateError) {
+        console.error('Error updating order with Razorpay ID:', updateError);
+        throw new Error('Failed to update order with payment details');
+      }
 
       return new Response(JSON.stringify({ 
         success: true, 

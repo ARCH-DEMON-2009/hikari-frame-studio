@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface Product {
   id: string;
+  slug?: string;
   name: string;
   price: number;
   image: string;
@@ -52,7 +53,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
   };
 
   const handleProductClick = () => {
-    navigate(`/product/${product.id}`);
+    // Use slug if available, otherwise use ID
+    const identifier = product.slug || product.id;
+    navigate(`/product/${identifier}`);
   };
 
   if (viewMode === 'list') {
