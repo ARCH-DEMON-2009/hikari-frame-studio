@@ -143,3 +143,12 @@ const CheckoutPage = () => {
 			setIsProcessing(false);
 		}
 	};
+
+	return (
+		<div>
+			{/* ...existing JSX code... */}
+		</div>
+	);
+}
+
+export default CheckoutPage;
