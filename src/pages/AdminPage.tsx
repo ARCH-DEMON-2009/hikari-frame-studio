@@ -6,6 +6,7 @@ import { ProductManagement } from '@/components/admin/ProductManagement';
 import { OrderManagement } from '@/components/admin/OrderManagement';
 import { FrameManagement } from '@/components/admin/FrameManagement';
 import { SettingsManagement } from '@/components/admin/SettingsManagement';
+import { SizeManagement } from '@/components/admin/SizeManagement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const AdminPage = () => {

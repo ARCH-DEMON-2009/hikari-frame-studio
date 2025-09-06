@@ -233,6 +233,39 @@ export type Database = {
         }
         Relationships: []
       }
+      size_options: {
+        Row: {
+          created_at: string
+          height: number
+          id: string
+          is_available: boolean
+          name: string
+          price: number
+          updated_at: string
+          width: number
+        }
+        Insert: {
+          created_at?: string
+          height: number
+          id?: string
+          is_available?: boolean
+          name: string
+          price?: number
+          updated_at?: string
+          width: number
+        }
+        Update: {
+          created_at?: string
+          height?: number
+          id?: string
+          is_available?: boolean
+          name?: string
+          price?: number
+          updated_at?: string
+          width?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Upload, X, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageUploadProps {
   images: string[];
@@ -30,14 +31,25 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           break;
         }
 
-        // Convert file to base64 data URL for storage
-        const reader = new FileReader();
-        const imageUrl = await new Promise<string>((resolve) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
-        });
+        // Upload to Supabase Storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         
-        newImageUrls.push(imageUrl);
+        const { data, error } = await supabase.storage
+          .from('product-images')
+          .upload(fileName, file);
+
+        if (error) {
+          console.error('Upload error:', error);
+          continue;
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(fileName);
+        
+        newImageUrls.push(publicUrl);
       }
 
       onChange([...images, ...newImageUrls]);

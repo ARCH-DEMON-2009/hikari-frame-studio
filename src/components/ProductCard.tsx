@@ -48,6 +48,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
     navigate('/customize', { state: { product } });
   };
 
+  const handleBuyNow = () => {
+    // Add item to cart and go directly to checkout
+    const cartItem = {
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.image,
+      category: product.category,
+    };
+    
+    addItem(cartItem);
+    navigate('/checkout');
+    
+    toast({
+      title: "Product added to cart",
+      description: `${product.name} has been added and you're being redirected to checkout.`,
+    });
+  };
+
   const toggleWishlist = () => {
     setIsWishlisted(!isWishlisted);
   };
