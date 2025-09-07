@@ -274,11 +274,26 @@ const ProductDetailPage = () => {
                   Add to Cart
                 </Button>
                 <Button
+                  onClick={() => {
+                    handleAddToCart();
+                    navigate('/checkout');
+                  }}
+                  className="flex-1"
+                  size="lg"
+                >
+                  Buy Now
+                </Button>
+              </div>
+              
+              <div className="flex gap-3">
+                <Button
                   variant="outline"
                   size="lg"
                   onClick={() => setIsWishlisted(!isWishlisted)}
+                  className="flex-1"
                 >
-                  <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
+                  <Heart className={`w-4 h-4 mr-2 ${isWishlisted ? 'fill-current' : ''}`} />
+                  {isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}
                 </Button>
                 <Button variant="outline" size="lg">
                   <Share className="w-4 h-4" />

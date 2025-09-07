@@ -89,7 +89,14 @@ export const ProductManagement = () => {
   };
 
   const handleImagesChange = async (newImages: string[]) => {
-    setFormData({ ...formData, images: newImages });
+    let finalImages = newImages;
+    
+    // If this is a frame product and we just added the first image, add the default frame images
+    if (formData.category?.toLowerCase().includes('frame') && formData.images.length === 0 && newImages.length > 0) {
+      finalImages = [...newImages, '/frame1.jpg', '/frame2.jpg'];
+    }
+    
+    setFormData({ ...formData, images: finalImages });
     
     // Auto-fill if enabled and we have images
     if (autoFillEnabled && newImages.length > 0 && !formData.title) {

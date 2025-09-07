@@ -163,6 +163,21 @@ const Index = () => {
                 <Link to="/products?category=posters" className="text-foreground hover:text-primary py-2">Posters</Link>
                 <Link to="/customize" className="text-foreground hover:text-primary py-2">Custom</Link>
               </div>
+              
+              {/* Mobile Cart and Wishlist */}
+              <div className="flex items-center justify-center space-x-6 pt-2 border-t">
+                <Heart className="w-6 h-6 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
+                <Link to="/cart" className="relative flex items-center">
+                  <ShoppingCart className="w-6 h-6 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
+                  {getTotalItems() > 0 && (
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                      {getTotalItems()}
+                    </Badge>
+                  )}
+                  <span className="ml-2">Cart</span>
+                </Link>
+              </div>
+              
               {user ? (
                 <div className="flex flex-col space-y-2 pt-2 border-t">
                   <Button variant="outline" size="sm" asChild className="justify-start">
