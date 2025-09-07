@@ -40,9 +40,10 @@ const AdminPage = () => {
         </div>
 
         <Tabs defaultValue="products" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="frames">Frame Styles</TabsTrigger>
+            <TabsTrigger value="sizes">Sizes</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
@@ -53,6 +54,10 @@ const AdminPage = () => {
           
           <TabsContent value="frames" className="mt-6">
             <FrameManagement />
+          </TabsContent>
+          
+          <TabsContent value="sizes" className="mt-6">
+            <SizeManagement />
           </TabsContent>
           
           <TabsContent value="orders" className="mt-6">

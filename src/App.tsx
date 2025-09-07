@@ -10,7 +10,7 @@ import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import OrderHistoryPage from "./pages/OrderHistoryPage";
 import AdminPage from "./pages/AdminPage";
-import CustomizationPage from "./components/CustomizationPage";
+import CustomizationPage from "./pages/CustomizationPage";
 import ShoppingCart from "./components/ShoppingCart";
 import CheckoutPage from "./components/CheckoutPage";
 import ProductsPage from "./pages/ProductsPage";

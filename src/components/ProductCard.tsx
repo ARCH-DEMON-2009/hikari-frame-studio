@@ -201,24 +201,34 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
                 e.stopPropagation();
                 handleAddToCart();
               }}
+              variant="outline"
+              className="flex-1 text-sm py-2"
+            >
+              <ShoppingCart className="w-4 h-4 mr-1" />
+              Add to Cart
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleBuyNow();
+              }}
               className="flex-1 btn-primary text-sm py-2"
             >
-              <Plus className="w-4 h-4 mr-1" />
-              Add
+              Buy Now
             </Button>
-            {product.category?.toLowerCase().includes('frame') && (
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCustomize();
-                }}
-                variant="secondary"
-                className="text-sm py-2"
-              >
-                Customize
-              </Button>
-            )}
           </div>
+          {product.category?.toLowerCase().includes('frame') && (
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCustomize();
+              }}
+              variant="secondary"
+              className="w-full text-sm py-2 mt-2"
+            >
+              Customize
+            </Button>
+          )}
         </div>
 
         {/* Category Badge */}

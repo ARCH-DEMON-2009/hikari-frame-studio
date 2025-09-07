@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Eye, Package, Truck, CheckCircle, Clock, Edit2, Download } from 'lucide-react';
 
 interface Order {
   id: string;
@@ -96,6 +97,53 @@ export const OrderManagement = () => {
     }
   };
 
+  const downloadCustomImages = async (orderId: string) => {
+    try {
+      // Fetch order items with custom images
+      const { data: orderItems, error } = await supabase
+        .from('order_items')
+        .select('*')
+        .eq('order_id', orderId);
+
+      if (error) throw error;
+
+      // Filter items that have custom images (base64 data URLs)
+      const customItems = orderItems?.filter(item => 
+        item.image_url && item.image_url.startsWith('data:image/')
+      ) || [];
+
+      if (customItems.length === 0) {
+        toast({
+          title: "No Custom Images",
+          description: "This order doesn't contain any custom uploaded images.",
+        });
+        return;
+      }
+
+      // Download each custom image
+      for (const [index, item] of customItems.entries()) {
+        const link = document.createElement('a');
+        link.href = item.image_url;
+        link.download = `order-${orderId}-item-${index + 1}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      toast({
+        title: "Success",
+        description: `Downloaded ${customItems.length} custom image(s)`,
+      });
+    } catch (error) {
+      console.error('Error downloading custom images:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download custom images",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PLACED': return 'bg-blue-500';
@@ -163,21 +211,31 @@ export const OrderManagement = () => {
                       {order.payment_status}
                     </Badge>
                   </div>
-                  <Select
-                    value={order.status}
-                    onValueChange={(value) => updateOrderStatus(order.id, value)}
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PLACED">Placed</SelectItem>
-                      <SelectItem value="PROCESSING">Processing</SelectItem>
-                      <SelectItem value="SHIPPED">Shipped</SelectItem>
-                      <SelectItem value="DELIVERED">Delivered</SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => downloadCustomImages(order.id)}
+                    >
+                      <Download className="w-4 h-4 mr-1" />
+                      Download Images
+                    </Button>
+                    <Select
+                      value={order.status}
+                      onValueChange={(value) => updateOrderStatus(order.id, value)}
+                    >
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PLACED">Placed</SelectItem>
+                        <SelectItem value="PROCESSING">Processing</SelectItem>
+                        <SelectItem value="SHIPPED">Shipped</SelectItem>
+                        <SelectItem value="DELIVERED">Delivered</SelectItem>
+                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             </CardHeader>

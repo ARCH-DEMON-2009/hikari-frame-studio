@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import ImageUpload from './ImageUpload';
+import { Switch } from '@/components/ui/switch';
 import { Pencil, Trash2, Plus } from 'lucide-react';
 
 interface Product {
@@ -23,16 +25,17 @@ export const ProductManagement = () => {
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const { toast } = useToast();
-
+  const [autoFillEnabled, setAutoFillEnabled] = useState(false);
+  const [autoFilling, setAutoFilling] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
-    slug: '',
     description: '',
     price: '',
     category: '',
-    imageUrls: ''
+    images: [] as string[],
+    slug: '',
   });
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchProducts();
@@ -63,11 +66,11 @@ export const ProductManagement = () => {
     setEditingProduct(product);
     setFormData({
       title: product.title,
-      slug: product.slug,
       description: product.description || '',
       price: product.price.toString(),
       category: product.category || '',
-      imageUrls: product.images.join(', ')
+      images: product.images || [],
+      slug: product.slug || '',
     });
     setShowForm(true);
   };
@@ -76,13 +79,58 @@ export const ProductManagement = () => {
     setEditingProduct(null);
     setFormData({
       title: '',
-      slug: '',
       description: '',
       price: '',
       category: '',
-      imageUrls: ''
+      images: [],
+      slug: '',
     });
     setShowForm(true);
+  };
+
+  const handleImagesChange = async (newImages: string[]) => {
+    setFormData({ ...formData, images: newImages });
+    
+    // Auto-fill if enabled and we have images
+    if (autoFillEnabled && newImages.length > 0 && !formData.title) {
+      await autoFillProductDetails(newImages[0]);
+    }
+  };
+
+  const autoFillProductDetails = async (imageUrl: string) => {
+    if (!imageUrl || autoFilling) return;
+    
+    setAutoFilling(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('auto-fill-product', {
+        body: { imageUrl }
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        setFormData(prev => ({
+          ...prev,
+          title: data.title || prev.title,
+          description: data.description || prev.description,
+          slug: data.slug || prev.slug,
+        }));
+
+        toast({
+          title: "Auto-fill Complete",
+          description: "Product details have been generated from the image.",
+        });
+      }
+    } catch (error) {
+      console.error('Auto-fill error:', error);
+      toast({
+        title: "Auto-fill Error",
+        description: "Failed to generate product details. Please fill manually.",
+        variant: "destructive",
+      });
+    } finally {
+      setAutoFilling(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,7 +143,7 @@ export const ProductManagement = () => {
         description: formData.description,
         price: parseFloat(formData.price),
         category: formData.category,
-        images: formData.imageUrls.split(',').map(url => url.trim()).filter(Boolean)
+        images: formData.images
       };
 
       if (editingProduct) {
@@ -150,7 +198,6 @@ export const ProductManagement = () => {
         title: "Success",
         description: "Product deleted successfully.",
       });
-      
       fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -169,9 +216,9 @@ export const ProductManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Products</h2>
-        <Button onClick={handleCreate}>
-          <Plus className="w-4 h-4 mr-2" />
+        <h2 className="text-2xl font-bold">Product Management</h2>
+        <Button onClick={handleCreate} className="flex items-center gap-2">
+          <Plus className="w-4 h-4" />
           Add Product
         </Button>
       </div>
@@ -179,74 +226,103 @@ export const ProductManagement = () => {
       {showForm && (
         <Card>
           <CardHeader>
-            <CardTitle>
-              {editingProduct ? 'Edit Product' : 'Create Product'}
-            </CardTitle>
+            <CardTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="slug">Slug</Label>
-                  <Input
-                    id="slug"
-                    value={formData.slug}
-                    onChange={(e) => setFormData({...formData, slug: e.target.value})}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="price">Price (₹)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => setFormData({...formData, price: e.target.value})}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="category">Category</Label>
-                  <Input
-                    id="category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    placeholder="e.g., frame, poster, sticker"
-                  />
-                </div>
+              {/* Auto-fill Toggle */}
+              <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
+                <Switch
+                  id="auto-fill"
+                  checked={autoFillEnabled}
+                  onCheckedChange={setAutoFillEnabled}
+                />
+                <Label htmlFor="auto-fill" className="text-sm">
+                  Auto-fill product details from uploaded images
+                </Label>
+                {autoFilling && (
+                  <span className="text-xs text-muted-foreground ml-2">
+                    Generating details...
+                  </span>
+                )}
               </div>
+
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Product title"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="slug">Slug</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  placeholder="product-url-slug"
+                  required
+                />
+              </div>
+
               <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Product description"
+                  className="min-h-[100px]"
                 />
               </div>
+
               <div>
-                <Label htmlFor="imageUrls">Image URLs (comma-separated)</Label>
+                <Label htmlFor="price">Price (₹)</Label>
                 <Input
-                  id="imageUrls"
-                  value={formData.imageUrls}
-                  onChange={(e) => setFormData({...formData, imageUrls: e.target.value})}
-                  placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  placeholder="0.00"
+                  required
                 />
               </div>
+
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Input
+                  id="category"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  placeholder="Product category"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="images">Images</Label>
+                <ImageUpload
+                  images={formData.images}
+                  onChange={handleImagesChange}
+                  maxImages={5}
+                />
+              </div>
+
               <div className="flex gap-2">
-                <Button type="submit">
-                  {editingProduct ? 'Update' : 'Create'}
+                <Button type="submit" className="flex-1">
+                  {editingProduct ? 'Update Product' : 'Create Product'}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowForm(false)}
+                  className="flex-1"
+                >
                   Cancel
                 </Button>
               </div>
@@ -255,62 +331,63 @@ export const ProductManagement = () => {
         </Card>
       )}
 
-      <div className="grid gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
           <Card key={product.id}>
-            <CardContent className="pt-6">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold">{product.title}</h3>
-                  <p className="text-sm text-muted-foreground">{product.slug}</p>
-                  <p className="text-sm mt-2">{product.description}</p>
-                  <div className="mt-2">
-                    <span className="text-lg font-bold">₹{product.price}</span>
-                    {product.category && (
-                      <span className="ml-2 text-sm bg-muted px-2 py-1 rounded">
-                        {product.category}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2 ml-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(product)}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(product.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+              <div>
+                <CardTitle className="text-lg line-clamp-2">{product.title}</CardTitle>
+                <p className="text-sm text-muted-foreground">{product.category}</p>
               </div>
-              {product.images.length > 0 && (
-                <div className="mt-4 flex gap-2">
-                  {product.images.slice(0, 3).map((image, index) => (
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleEdit(product)}
+                  className="h-8 w-8"
+                >
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleDelete(product.id)}
+                  className="h-8 w-8 text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {product.images.length > 0 && (
+                  <div className="aspect-square bg-muted rounded-lg overflow-hidden">
                     <img
-                      key={index}
-                      src={image}
-                      alt={`${product.title} ${index + 1}`}
-                      className="w-16 h-16 object-cover rounded"
+                      src={product.images[0]}
+                      alt={product.title}
+                      className="w-full h-full object-cover"
                     />
-                  ))}
-                  {product.images.length > 3 && (
-                    <div className="w-16 h-16 bg-muted rounded flex items-center justify-center text-sm">
-                      +{product.images.length - 3}
-                    </div>
+                  </div>
+                )}
+                <div>
+                  <p className="text-lg font-bold">₹{product.price}</p>
+                  {product.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                      {product.description}
+                    </p>
                   )}
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      {products.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          <p>No products found. Create your first product!</p>
+        </div>
+      )}
     </div>
   );
 };

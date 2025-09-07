@@ -363,3 +363,5 @@ export const CustomizationPage = () => {
     </div>
   );
 };
+
+export default CustomizationPage;
