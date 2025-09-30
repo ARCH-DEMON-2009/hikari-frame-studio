@@ -222,9 +222,15 @@ const CheckoutPage = () => {
                     <Label htmlFor="phone">Phone Number *</Label>
                     <Input
                       id="phone"
+                      type="tel"
+                      pattern="[0-9]*"
                       value={customerInfo.phone}
-                      onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        setCustomerInfo(prev => ({ ...prev, phone: value }));
+                      }}
                       placeholder="Enter your phone number"
+                      inputMode="numeric"
                     />
                   </div>
                   <div>
