@@ -49,13 +49,28 @@ serve(async (req) => {
       .select('key, value')
       .in('key', ['shipping_cost', 'free_shipping_threshold', 'cod_charge']);
     
-    const settingsMap = {};
+    interface SettingsMap {
+      shipping_cost?: number;
+      free_shipping_threshold?: number;
+      cod_charge?: number;
+    }
+    
+    const settingsMap: SettingsMap = {};
     settings?.forEach(setting => {
-      settingsMap[setting.key] = parseFloat(setting.value);
+      settingsMap[setting.key as keyof SettingsMap] = parseFloat(setting.value);
     });
     
+    interface CartItem {
+      price: number;
+      quantity: number;
+      category?: string;
+      productId?: string;
+      name: string;
+      image: string;
+    }
+    
     // Calculate pricing
-    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = (items as CartItem[]).reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0);
     
     // Apply shipping based on settings
     const shippingCost = settingsMap.shipping_cost || 50;
@@ -67,9 +82,9 @@ serve(async (req) => {
     
     // Apply discount for 5+ frames
     let discountAmount = 0;
-    const totalFrames = items
-      .filter(item => item.category?.toLowerCase().includes('frame'))
-      .reduce((sum, item) => sum + item.quantity, 0);
+    const totalFrames = (items as CartItem[])
+      .filter((item: CartItem) => item.category?.toLowerCase().includes('frame'))
+      .reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
     
     if (totalFrames >= 5) {
       discountAmount = 50;
@@ -107,7 +122,7 @@ serve(async (req) => {
     console.log('Created order:', order);
 
     // Create order items
-    const orderItems = items.map(item => ({
+    const orderItems = (items as CartItem[]).map((item: CartItem) => ({
       order_id: order.id,
       product_id: item.productId || null,
       title: item.name,
@@ -142,9 +157,10 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in create-order function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(JSON.stringify({ 
       success: false, 
-      error: error.message 
+      error: errorMessage 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

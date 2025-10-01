@@ -94,10 +94,10 @@ export const CustomizationPage = () => {
   };
 
   const handleAddToCart = () => {
-    if (!uploadedImage || !selectedFrame || !selectedSize) {
+    if (!selectedFrame || !selectedSize) {
       toast({
         title: "Missing Information",
-        description: "Please upload an image and select frame and size options.",
+        description: "Please select frame and size options.",
         variant: "destructive",
       });
       return;
@@ -113,10 +113,10 @@ export const CustomizationPage = () => {
       name: `Custom ${frameStyle.name} Frame - ${sizeOption.name}`,
       price: frameStyle.price + sizeOption.price,
       quantity: 1,
-      image: uploadedImage,
+      image: uploadedImage || product?.images?.[0] || '/placeholder.svg',
       category: 'Custom Frame',
       customization: {
-        uploadedImage: uploadedImage,
+        uploadedImage: uploadedImage || null,
         frameStyle: frameStyle.name,
         size: sizeOption.name,
         scale: imageScale,
@@ -204,9 +204,10 @@ export const CustomizationPage = () => {
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-full text-muted-foreground">
-                    <div className="text-center">
+                    <div className="text-center p-8">
                       <Upload className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <p>Upload an image to see preview</p>
+                      <p className="font-medium mb-2">Optional: Upload Your Image</p>
+                      <p className="text-sm">You can book your order without uploading an image now and provide it later</p>
                     </div>
                   </div>
                 )}
@@ -354,10 +355,15 @@ export const CustomizationPage = () => {
           <Button
             onClick={handleAddToCart}
             className="w-full btn-primary"
-            disabled={!uploadedImage || !selectedFrame || !selectedSize}
+            disabled={!selectedFrame || !selectedSize}
           >
             Add to Cart
           </Button>
+          {!uploadedImage && (
+            <p className="text-sm text-center text-muted-foreground">
+              You can upload your image later after placing the order
+            </p>
+          )}
         </div>
       </div>
     </div>

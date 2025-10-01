@@ -34,6 +34,14 @@ export const ProductManagement = () => {
     category: '',
     images: [] as string[],
     slug: '',
+    // Anime figure specific fields
+    characterName: '',
+    seriesName: '',
+    figureHeight: '',
+    material: '',
+    manufacturer: '',
+    releaseDate: '',
+    limitedEdition: false,
   });
   const { toast } = useToast();
 
@@ -71,6 +79,13 @@ export const ProductManagement = () => {
       category: product.category || '',
       images: product.images || [],
       slug: product.slug || '',
+      characterName: '',
+      seriesName: '',
+      figureHeight: '',
+      material: '',
+      manufacturer: '',
+      releaseDate: '',
+      limitedEdition: false,
     });
     setShowForm(true);
   };
@@ -84,6 +99,13 @@ export const ProductManagement = () => {
       category: '',
       images: [],
       slug: '',
+      characterName: '',
+      seriesName: '',
+      figureHeight: '',
+      material: '',
+      manufacturer: '',
+      releaseDate: '',
+      limitedEdition: false,
     });
     setShowForm(true);
   };
@@ -144,10 +166,29 @@ export const ProductManagement = () => {
     e.preventDefault();
     
     try {
+      // Build description with anime figure details if applicable
+      let finalDescription = formData.description;
+      if (formData.category.toLowerCase().includes('anime') || 
+          formData.category.toLowerCase().includes('figure') ||
+          formData.category.toLowerCase().includes('collectible')) {
+        const details = [];
+        if (formData.characterName) details.push(`Character: ${formData.characterName}`);
+        if (formData.seriesName) details.push(`Series: ${formData.seriesName}`);
+        if (formData.figureHeight) details.push(`Height: ${formData.figureHeight}cm`);
+        if (formData.material) details.push(`Material: ${formData.material}`);
+        if (formData.manufacturer) details.push(`Manufacturer: ${formData.manufacturer}`);
+        if (formData.releaseDate) details.push(`Release Date: ${formData.releaseDate}`);
+        if (formData.limitedEdition) details.push('Limited Edition');
+        
+        if (details.length > 0) {
+          finalDescription = `${formData.description}\n\n${details.join(' • ')}`;
+        }
+      }
+
       const productData = {
         title: formData.title,
         slug: formData.slug,
-        description: formData.description,
+        description: finalDescription,
         price: parseFloat(formData.price),
         category: formData.category,
         images: formData.images
@@ -306,10 +347,94 @@ export const ProductManagement = () => {
                   id="category"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  placeholder="Product category"
+                  placeholder="e.g., Frame, Anime Figure, Collectible"
                   required
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Use "Anime Figure" or "Collectible" for detailed figure options
+                </p>
               </div>
+
+              {/* Anime Figure Specific Fields */}
+              {(formData.category.toLowerCase().includes('anime') || 
+                formData.category.toLowerCase().includes('figure') ||
+                formData.category.toLowerCase().includes('collectible')) && (
+                <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                  <h3 className="font-semibold text-sm">Anime Figure Details</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="characterName">Character Name</Label>
+                      <Input
+                        id="characterName"
+                        value={formData.characterName}
+                        onChange={(e) => setFormData({ ...formData, characterName: e.target.value })}
+                        placeholder="e.g., Naruto Uzumaki"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="seriesName">Series/Anime Name</Label>
+                      <Input
+                        id="seriesName"
+                        value={formData.seriesName}
+                        onChange={(e) => setFormData({ ...formData, seriesName: e.target.value })}
+                        placeholder="e.g., Naruto Shippuden"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="figureHeight">Height/Size (cm)</Label>
+                      <Input
+                        id="figureHeight"
+                        type="number"
+                        value={formData.figureHeight}
+                        onChange={(e) => setFormData({ ...formData, figureHeight: e.target.value })}
+                        placeholder="e.g., 25"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="material">Material</Label>
+                      <Input
+                        id="material"
+                        value={formData.material}
+                        onChange={(e) => setFormData({ ...formData, material: e.target.value })}
+                        placeholder="e.g., PVC, ABS"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="manufacturer">Manufacturer</Label>
+                      <Input
+                        id="manufacturer"
+                        value={formData.manufacturer}
+                        onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
+                        placeholder="e.g., Good Smile Company"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="releaseDate">Release Date</Label>
+                      <Input
+                        id="releaseDate"
+                        type="date"
+                        value={formData.releaseDate}
+                        onChange={(e) => setFormData({ ...formData, releaseDate: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="limitedEdition"
+                        checked={formData.limitedEdition}
+                        onCheckedChange={(checked) => setFormData({ ...formData, limitedEdition: checked })}
+                      />
+                      <Label htmlFor="limitedEdition">Limited Edition</Label>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="images">Images</Label>
