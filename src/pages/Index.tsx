@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Heart, ShoppingCart, Menu, X, User, LogOut } from 'lucide-react';
+import { Search, Heart, ShoppingCart, Menu, X, User, LogOut, Wrench, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -208,6 +208,24 @@ const Index = () => {
 
       {/* Hero Section */}
       <Hero />
+
+      {/* Quick Actions */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+          <Link to="/customize">
+            <Button variant="outline" className="w-full h-20 text-lg">
+              <Wrench className="w-6 h-6 mr-2" />
+              Customize Your Product
+            </Button>
+          </Link>
+          <Link to="/request-product">
+            <Button variant="outline" className="w-full h-20 text-lg">
+              <MessageSquare className="w-6 h-6 mr-2" />
+              Request a Product
+            </Button>
+          </Link>
+        </div>
+      </div>
 
       {/* Featured Products */}
       <section className="py-16 bg-gradient-subtle">

@@ -172,33 +172,39 @@ export type Database = {
       }
       products: {
         Row: {
+          amazon_link: string | null
           category: string | null
           created_at: string
           description: string | null
           id: string
           images: string[]
+          meesho_link: string | null
           price: number
           slug: string
           title: string
           updated_at: string
         }
         Insert: {
+          amazon_link?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
           id?: string
           images?: string[]
+          meesho_link?: string | null
           price: number
           slug: string
           title: string
           updated_at?: string
         }
         Update: {
+          amazon_link?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
           id?: string
           images?: string[]
+          meesho_link?: string | null
           price?: number
           slug?: string
           title?: string

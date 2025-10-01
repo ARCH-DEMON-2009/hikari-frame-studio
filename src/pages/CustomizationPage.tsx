@@ -32,6 +32,7 @@ export const CustomizationPage = () => {
   
   const product = location.state?.product;
   
+  const [customizationType, setCustomizationType] = useState<string>('Frame');
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedFrame, setSelectedFrame] = useState<string>('');
   const [selectedSize, setSelectedSize] = useState<string>('');
@@ -110,12 +111,13 @@ export const CustomizationPage = () => {
 
     const customItem = {
       productId: product?.id || 'custom',
-      name: `Custom ${frameStyle.name} Frame - ${sizeOption.name}`,
+      name: `Custom ${customizationType} - ${frameStyle.name} - ${sizeOption.name}`,
       price: frameStyle.price + sizeOption.price,
       quantity: 1,
       image: uploadedImage || product?.images?.[0] || '/placeholder.svg',
-      category: 'Custom Frame',
+      category: `Custom ${customizationType}`,
       customization: {
+        type: customizationType,
         uploadedImage: uploadedImage || null,
         frameStyle: frameStyle.name,
         size: sizeOption.name,
@@ -129,7 +131,7 @@ export const CustomizationPage = () => {
     
     toast({
       title: "Added to Cart",
-      description: "Your custom framed photo has been added to cart.",
+      description: `Your custom ${customizationType.toLowerCase()} has been added to cart.`,
     });
   };
 
@@ -138,18 +140,6 @@ export const CustomizationPage = () => {
     if (frameName.toLowerCase().includes('white')) return '/f2.jpg';
     return '/f1.jpg'; // default
   };
-
-  if (!product) {
-    return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">No Product Selected</h2>
-        <Button onClick={() => navigate('/products')} variant="outline">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Browse Products
-        </Button>
-      </div>
-    );
-  }
 
   if (loading) {
     return (
@@ -166,8 +156,8 @@ export const CustomizationPage = () => {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
-        <h1 className="text-3xl font-bold text-primary">Customize Your Frame</h1>
-        <p className="text-muted-foreground mt-2">Upload your image and choose your frame style</p>
+        <h1 className="text-3xl font-bold text-primary">Customize Your Product</h1>
+        <p className="text-muted-foreground mt-2">Choose product type, upload your image, and select options</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -244,6 +234,27 @@ export const CustomizationPage = () => {
 
         {/* Customization Options */}
         <div className="space-y-6">
+          {/* Product Type Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Select Product Type</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RadioGroup value={customizationType} onValueChange={setCustomizationType}>
+                <div className="grid grid-cols-3 gap-3">
+                  {['Frame', 'Poster', 'Figure'].map((type) => (
+                    <div key={type} className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
+                      <RadioGroupItem value={type} id={type} />
+                      <Label htmlFor={type} className="font-medium cursor-pointer">
+                        {type}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </RadioGroup>
+            </CardContent>
+          </Card>
+
           {/* Image Upload */}
           <Card>
             <CardHeader>

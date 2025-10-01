@@ -18,6 +18,8 @@ interface Product {
   price: number;
   category: string;
   images: string[];
+  meesho_link?: string;
+  amazon_link?: string;
 }
 
 export const ProductManagement = () => {
@@ -34,6 +36,8 @@ export const ProductManagement = () => {
     category: '',
     images: [] as string[],
     slug: '',
+    meesho_link: '',
+    amazon_link: '',
     // Anime figure specific fields
     characterName: '',
     seriesName: '',
@@ -79,6 +83,8 @@ export const ProductManagement = () => {
       category: product.category || '',
       images: product.images || [],
       slug: product.slug || '',
+      meesho_link: product.meesho_link || '',
+      amazon_link: product.amazon_link || '',
       characterName: '',
       seriesName: '',
       figureHeight: '',
@@ -99,6 +105,8 @@ export const ProductManagement = () => {
       category: '',
       images: [],
       slug: '',
+      meesho_link: '',
+      amazon_link: '',
       characterName: '',
       seriesName: '',
       figureHeight: '',
@@ -191,7 +199,9 @@ export const ProductManagement = () => {
         description: finalDescription,
         price: parseFloat(formData.price),
         category: formData.category,
-        images: formData.images
+        images: formData.images,
+        meesho_link: formData.meesho_link || null,
+        amazon_link: formData.amazon_link || null,
       };
 
       if (editingProduct) {
@@ -442,6 +452,28 @@ export const ProductManagement = () => {
                   images={formData.images}
                   onChange={handleImagesChange}
                   maxImages={5}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="meesho_link">Meesho Link (Optional)</Label>
+                <Input
+                  id="meesho_link"
+                  type="url"
+                  placeholder="https://meesho.com/..."
+                  value={formData.meesho_link}
+                  onChange={(e) => setFormData({ ...formData, meesho_link: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="amazon_link">Amazon Link (Optional - Coming Soon)</Label>
+                <Input
+                  id="amazon_link"
+                  type="url"
+                  placeholder="https://amazon.in/..."
+                  value={formData.amazon_link}
+                  onChange={(e) => setFormData({ ...formData, amazon_link: e.target.value })}
                 />
               </div>
 

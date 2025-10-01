@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Heart, ShoppingCart, Star, Plus, Minus, Share, Truck, Shield, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Heart, ShoppingCart, Star, Plus, Minus, Share, Truck, Shield, RotateCcw, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -55,7 +55,9 @@ const ProductDetailPage = () => {
         category: data.category || 'Uncategorized',
         description: data.description || 'No description available',
         rating: 4.5,
-        reviews: Math.floor(Math.random() * 100) + 10
+        reviews: Math.floor(Math.random() * 100) + 10,
+        meesho_link: data.meesho_link,
+        amazon_link: data.amazon_link,
       };
       
       setProduct(transformedProduct);
@@ -92,6 +94,11 @@ const ProductDetailPage = () => {
 
   const handleCustomize = () => {
     navigate('/customize', { state: { product } });
+  };
+
+  const handleBuyNow = () => {
+    handleAddToCart();
+    navigate('/checkout');
   };
 
   if (loading) {
@@ -274,16 +281,40 @@ const ProductDetailPage = () => {
                   Add to Cart
                 </Button>
                 <Button
-                  onClick={() => {
-                    handleAddToCart();
-                    navigate('/checkout');
-                  }}
+                  onClick={handleBuyNow}
                   className="flex-1"
                   size="lg"
                 >
                   Buy Now
                 </Button>
               </div>
+              
+              {/* External Marketplace Links */}
+              {(product.meesho_link || product.amazon_link) && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Also available on:</p>
+                  <div className="flex gap-2">
+                    {product.meesho_link && (
+                      <Button 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => window.open(product.meesho_link, '_blank')}
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Buy on Meesho
+                      </Button>
+                    )}
+                    <Button 
+                      variant="outline" 
+                      className="flex-1" 
+                      disabled
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Amazon (Coming Soon)
+                    </Button>
+                  </div>
+                </div>
+              )}
               
               <div className="flex gap-3">
                 <Button
