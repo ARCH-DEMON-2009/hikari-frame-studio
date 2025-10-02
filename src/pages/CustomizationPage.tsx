@@ -120,7 +120,16 @@ export const CustomizationPage = () => {
     if (!sizeOption) return;
     if (customizationType === 'Frame' && !frameStyle) return;
 
-    const basePrice = customizationType === 'Frame' && frameStyle ? frameStyle.price : 0;
+    // Calculate base price based on type
+    let basePrice = 0;
+    if (customizationType === 'Frame' && frameStyle) {
+      basePrice = frameStyle.price;
+    } else if (customizationType === 'Poster') {
+      basePrice = 199; // Base price for posters
+    } else if (customizationType === 'Figure') {
+      basePrice = 299; // Base price for figures
+    }
+    
     const totalPrice = basePrice + sizeOption.price;
 
     const customItem = {
@@ -354,10 +363,22 @@ export const CustomizationPage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {customizationType === 'Frame' && (
+                {customizationType === 'Frame' && selectedFrame && (
                   <div className="flex justify-between">
                     <span>Frame:</span>
-                    <span>₹{selectedFrame ? frameStyles.find(f => f.id === selectedFrame)?.price || 0 : 0}</span>
+                    <span>₹{frameStyles.find(f => f.id === selectedFrame)?.price || 0}</span>
+                  </div>
+                )}
+                {customizationType === 'Poster' && (
+                  <div className="flex justify-between">
+                    <span>Poster Base Price:</span>
+                    <span>₹199</span>
+                  </div>
+                )}
+                {customizationType === 'Figure' && (
+                  <div className="flex justify-between">
+                    <span>Figure Base Price:</span>
+                    <span>₹299</span>
                   </div>
                 )}
                 <div className="flex justify-between">
@@ -366,7 +387,17 @@ export const CustomizationPage = () => {
                 </div>
                 <div className="border-t pt-2 font-bold flex justify-between">
                   <span>Total:</span>
-                  <span>₹{(customizationType === 'Frame' && selectedFrame ? frameStyles.find(f => f.id === selectedFrame)?.price || 0 : 0) + (selectedSize ? sizeOptions.find(s => s.id === selectedSize)?.price || 0 : 0)}</span>
+                  <span>₹{(() => {
+                    let base = 0;
+                    if (customizationType === 'Frame' && selectedFrame) {
+                      base = frameStyles.find(f => f.id === selectedFrame)?.price || 0;
+                    } else if (customizationType === 'Poster') {
+                      base = 199;
+                    } else if (customizationType === 'Figure') {
+                      base = 299;
+                    }
+                    return base + (selectedSize ? sizeOptions.find(s => s.id === selectedSize)?.price || 0 : 0);
+                  })()}</span>
                 </div>
               </div>
             </CardContent>

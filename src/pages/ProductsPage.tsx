@@ -30,7 +30,7 @@ const ProductsPage = () => {
 
   useEffect(() => {
     if (urlCategory) {
-      setCategoryFilter(urlCategory.toLowerCase());
+      setCategoryFilter(urlCategory);
     }
   }, [urlCategory]);
 

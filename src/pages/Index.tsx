@@ -100,9 +100,9 @@ const Index = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="/products?category=frames" className="text-foreground hover:text-primary transition-colors">Frames</Link>
-              <Link to="/products?category=stickers" className="text-foreground hover:text-primary transition-colors">Wall Stickers</Link>
-              <Link to="/products?category=posters" className="text-foreground hover:text-primary transition-colors">Posters</Link>
+              <Link to="/products?category=Frame" className="text-foreground hover:text-primary transition-colors">Frames</Link>
+              <Link to="/products?category=Wall Stickers" className="text-foreground hover:text-primary transition-colors">Wall Stickers</Link>
+              <Link to="/products?category=Posters" className="text-foreground hover:text-primary transition-colors">Posters</Link>
               <Link to="/customize" className="text-foreground hover:text-primary transition-colors">Custom</Link>
             </div>
 
@@ -189,9 +189,9 @@ const Index = () => {
                 }}
               />
               <div className="flex flex-col space-y-2">
-                <Link to="/products?category=frames" className="text-foreground hover:text-primary py-2">Frames</Link>
-                <Link to="/products?category=stickers" className="text-foreground hover:text-primary py-2">Wall Stickers</Link>
-                <Link to="/products?category=posters" className="text-foreground hover:text-primary py-2">Posters</Link>
+                <Link to="/products?category=Frame" className="text-foreground hover:text-primary py-2">Frames</Link>
+                <Link to="/products?category=Wall Stickers" className="text-foreground hover:text-primary py-2">Wall Stickers</Link>
+                <Link to="/products?category=Posters" className="text-foreground hover:text-primary py-2">Posters</Link>
                 <Link to="/customize" className="text-foreground hover:text-primary py-2">Custom</Link>
               </div>
               
