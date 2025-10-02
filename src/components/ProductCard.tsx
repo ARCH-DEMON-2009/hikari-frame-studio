@@ -11,7 +11,8 @@ interface Product {
   name: string;
   price: number;
   image: string;
-  category: string;
+  category: string | string[];
+  categoryArray?: string[];
   rating: number;
   reviews: number;
 }
@@ -29,13 +30,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
   const navigate = useNavigate();
 
   const handleAddToCart = () => {
+    const displayCategory = Array.isArray(product.category) 
+      ? product.category[0] 
+      : product.category;
+      
     addItem({
       productId: product.id,
       name: product.name,
       price: product.price,
       quantity: 1,
       image: product.image,
-      category: product.category
+      category: displayCategory
     });
     
     toast({
@@ -50,13 +55,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
 
   const handleBuyNow = () => {
     // Add item to cart and go directly to checkout
+    const displayCategory = Array.isArray(product.category) 
+      ? product.category[0] 
+      : product.category;
+      
     const cartItem = {
       productId: product.id,
       name: product.name,
       price: product.price,
       quantity: 1,
       image: product.image,
-      category: product.category,
+      category: displayCategory,
     };
     
     addItem(cartItem);
@@ -88,6 +97,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
           <img
             src={product.image}
             alt={product.name}
+            loading="lazy"
             className="w-full h-full object-cover"
           />
         </div>
@@ -108,7 +118,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
               <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
             </button>
           </div>
-          <p className="text-sm text-charcoal-600 capitalize">{product.category}</p>
+          <p className="text-sm text-charcoal-600 capitalize">
+            {Array.isArray(product.category) ? product.category[0] : product.category}
+          </p>
           <div className="flex items-center gap-1">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
@@ -134,11 +146,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
                   e.stopPropagation();
                   handleAddToCart();
                 }}
-                className="btn-primary text-sm"
+                variant="secondary"
+                className="text-sm"
               >
                 Add to Cart
               </Button>
-              {product.category?.toLowerCase().includes('frame') && (
+              {(() => {
+                const categoryStr = Array.isArray(product.category) 
+                  ? product.category[0]?.toLowerCase() || '' 
+                  : product.category?.toLowerCase() || '';
+                return categoryStr.includes('frame');
+              })() && (
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -169,6 +187,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
         <img
           src={product.image}
           alt={product.name}
+          loading="lazy"
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         
@@ -217,7 +236,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
               Buy Now
             </Button>
           </div>
-          {product.category?.toLowerCase().includes('frame') && (
+          {(() => {
+            const categoryStr = Array.isArray(product.category) 
+              ? product.category[0]?.toLowerCase() || '' 
+              : product.category?.toLowerCase() || '';
+            return categoryStr.includes('frame');
+          })() && (
             <Button
               onClick={(e) => {
                 e.stopPropagation();
@@ -234,7 +258,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
         {/* Category Badge */}
         <div className="absolute top-3 left-3">
           <span className="bg-white/80 backdrop-blur-sm text-charcoal-600 text-xs px-2 py-1 rounded-full font-medium capitalize">
-            {product.category}
+            {Array.isArray(product.category) ? product.category[0] : product.category}
           </span>
         </div>
       </div>

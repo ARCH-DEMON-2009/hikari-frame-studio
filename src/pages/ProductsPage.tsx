@@ -16,6 +16,7 @@ const ProductsPage = () => {
   const [sortBy, setSortBy] = useState('name');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [categories, setCategories] = useState(['all']);
 
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -47,14 +48,25 @@ const ProductsPage = () => {
       
       const transformedProducts = data?.map(product => ({
         id: product.id,
+        slug: product.slug,
         name: product.title,
         price: product.price,
         image: product.images[0] || '/placeholder.svg',
-        category: product.category || 'Uncategorized',
+        category: product.category,
+        categoryArray: Array.isArray(product.category) ? product.category : [product.category || 'Uncategorized'],
         rating: 4.5,
         reviews: Math.floor(Math.random() * 100) + 10,
         description: product.description
       })) || [];
+      
+      // Extract unique categories
+      const uniqueCategories = new Set(['all']);
+      transformedProducts.forEach(product => {
+        product.categoryArray.forEach(cat => {
+          if (cat) uniqueCategories.add(cat.toLowerCase());
+        });
+      });
+      setCategories(Array.from(uniqueCategories));
       
       setProducts(transformedProducts);
     } catch (error) {
@@ -70,7 +82,9 @@ const ProductsPage = () => {
     // Filter by category
     if (categoryFilter !== 'all') {
       filtered = filtered.filter(product => 
-        product.category.toLowerCase().includes(categoryFilter)
+        product.categoryArray.some(cat => 
+          cat.toLowerCase() === categoryFilter.toLowerCase()
+        )
       );
     }
 
@@ -78,7 +92,7 @@ const ProductsPage = () => {
     if (searchTerm) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.categoryArray.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
@@ -109,22 +123,9 @@ const ProductsPage = () => {
   };
 
   const getCategoryDisplayName = (category: string) => {
-    switch (category) {
-      case 'frames':
-      case 'frame':
-        return 'Photo Frames';
-      case 'stickers':
-      case 'sticker':
-        return 'Wall Stickers';
-      case 'posters':
-      case 'poster':
-        return 'Posters';
-      default:
-        return 'All Products';
-    }
+    if (category === 'all') return 'All Products';
+    return category.charAt(0).toUpperCase() + category.slice(1);
   };
-
-  const categories = ['all', 'frames', 'stickers', 'posters'];
 
   if (loading) {
     return (

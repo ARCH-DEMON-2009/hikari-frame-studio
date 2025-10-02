@@ -95,31 +95,47 @@ export const CustomizationPage = () => {
   };
 
   const handleAddToCart = () => {
-    if (!selectedFrame || !selectedSize) {
+    // For Frame type, require frame selection
+    if (customizationType === 'Frame' && !selectedFrame) {
       toast({
         title: "Missing Information",
-        description: "Please select frame and size options.",
+        description: "Please select a frame style.",
         variant: "destructive",
       });
       return;
     }
 
-    const frameStyle = frameStyles.find(f => f.id === selectedFrame);
+    if (!selectedSize) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a size option.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const frameStyle = customizationType === 'Frame' ? frameStyles.find(f => f.id === selectedFrame) : null;
     const sizeOption = sizeOptions.find(s => s.id === selectedSize);
     
-    if (!frameStyle || !sizeOption) return;
+    if (!sizeOption) return;
+    if (customizationType === 'Frame' && !frameStyle) return;
+
+    const basePrice = customizationType === 'Frame' && frameStyle ? frameStyle.price : 0;
+    const totalPrice = basePrice + sizeOption.price;
 
     const customItem = {
       productId: product?.id || 'custom',
-      name: `Custom ${customizationType} - ${frameStyle.name} - ${sizeOption.name}`,
-      price: frameStyle.price + sizeOption.price,
+      name: customizationType === 'Frame' 
+        ? `Custom ${customizationType} - ${frameStyle?.name} - ${sizeOption.name}`
+        : `Custom ${customizationType} - ${sizeOption.name}`,
+      price: totalPrice,
       quantity: 1,
       image: uploadedImage || product?.images?.[0] || '/placeholder.svg',
       category: `Custom ${customizationType}`,
       customization: {
         type: customizationType,
         uploadedImage: uploadedImage || null,
-        frameStyle: frameStyle.name,
+        frameStyle: frameStyle?.name || null,
         size: sizeOption.name,
         scale: imageScale,
         rotation: imageRotation,
@@ -171,16 +187,6 @@ export const CustomizationPage = () => {
               <div className="relative bg-cream-100 rounded-lg overflow-hidden" style={{ aspectRatio: '210/297' }}>
                 {uploadedImage ? (
                   <div className="relative w-full h-full flex items-center justify-center p-8">
-                    {/* Frame Preview */}
-                    {selectedFrame && (
-                      <div className="absolute inset-0 pointer-events-none">
-                        <img 
-                          src={getFramePreview(frameStyles.find(f => f.id === selectedFrame)?.name || '')}
-                          alt="Frame preview"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
                     {/* User Image */}
                     <img
                       src={uploadedImage}
@@ -284,34 +290,36 @@ export const CustomizationPage = () => {
             </CardContent>
           </Card>
 
-          {/* Frame Styles */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Choose Frame Style</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame}>
-                <div className="grid grid-cols-1 gap-3">
-                  {frameStyles.map((frame) => (
-                    <div key={frame.id} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50">
-                      <RadioGroupItem value={frame.id} id={frame.id} />
-                      <img 
-                        src={getFramePreview(frame.name)}
-                        alt={frame.name}
-                        className="w-12 h-12 object-cover rounded border"
-                      />
-                      <div className="flex-1">
-                        <Label htmlFor={frame.id} className="font-medium cursor-pointer">
-                          {frame.name}
-                        </Label>
-                        <p className="text-sm text-muted-foreground">₹{frame.price}</p>
+          {/* Frame Styles - Only show for Frame type */}
+          {customizationType === 'Frame' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Choose Frame Style</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup value={selectedFrame} onValueChange={setSelectedFrame}>
+                  <div className="grid grid-cols-1 gap-3">
+                    {frameStyles.map((frame) => (
+                      <div key={frame.id} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50">
+                        <RadioGroupItem value={frame.id} id={frame.id} />
+                        <img 
+                          src={getFramePreview(frame.name)}
+                          alt={frame.name}
+                          className="w-12 h-12 object-cover rounded border"
+                        />
+                        <div className="flex-1">
+                          <Label htmlFor={frame.id} className="font-medium cursor-pointer">
+                            {frame.name}
+                          </Label>
+                          <p className="text-sm text-muted-foreground">₹{frame.price}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </RadioGroup>
-            </CardContent>
-          </Card>
+                    ))}
+                  </div>
+                </RadioGroup>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Size Options */}
           <Card>
@@ -346,17 +354,19 @@ export const CustomizationPage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Frame:</span>
-                  <span>₹{selectedFrame ? frameStyles.find(f => f.id === selectedFrame)?.price || 0 : 0}</span>
-                </div>
+                {customizationType === 'Frame' && (
+                  <div className="flex justify-between">
+                    <span>Frame:</span>
+                    <span>₹{selectedFrame ? frameStyles.find(f => f.id === selectedFrame)?.price || 0 : 0}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span>Size:</span>
                   <span>₹{selectedSize ? sizeOptions.find(s => s.id === selectedSize)?.price || 0 : 0}</span>
                 </div>
                 <div className="border-t pt-2 font-bold flex justify-between">
                   <span>Total:</span>
-                  <span>₹{(selectedFrame ? frameStyles.find(f => f.id === selectedFrame)?.price || 0 : 0) + (selectedSize ? sizeOptions.find(s => s.id === selectedSize)?.price || 0 : 0)}</span>
+                  <span>₹{(customizationType === 'Frame' && selectedFrame ? frameStyles.find(f => f.id === selectedFrame)?.price || 0 : 0) + (selectedSize ? sizeOptions.find(s => s.id === selectedSize)?.price || 0 : 0)}</span>
                 </div>
               </div>
             </CardContent>
@@ -366,7 +376,7 @@ export const CustomizationPage = () => {
           <Button
             onClick={handleAddToCart}
             className="w-full btn-primary"
-            disabled={!selectedFrame || !selectedSize}
+            disabled={(customizationType === 'Frame' && !selectedFrame) || !selectedSize}
           >
             Add to Cart
           </Button>

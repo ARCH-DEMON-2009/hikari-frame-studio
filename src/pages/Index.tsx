@@ -12,6 +12,7 @@ import ProductCard from '../components/ProductCard';
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user, isAdmin, signOut } = useAuth();
   const { getTotalItems } = useCart();
@@ -19,33 +20,61 @@ const Index = () => {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
   const fetchProducts = async () => {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('*')
-        .limit(6);
+        .select('*');
 
       if (error) throw error;
       
+      // Randomize and limit to 6 products
+      const shuffled = data?.sort(() => 0.5 - Math.random()) || [];
+      const randomProducts = shuffled.slice(0, 6);
+      
       // Transform database products to match expected format
-      const transformedProducts = data?.map(product => ({
+      const transformedProducts = randomProducts.map(product => ({
         id: product.id,
         name: product.title,
         price: product.price,
         image: product.images[0] || '/placeholder.svg',
-        category: product.category || 'Uncategorized',
+        category: Array.isArray(product.category) ? product.category[0] : product.category || 'Uncategorized',
         rating: 4.5, // Default rating
         reviews: Math.floor(Math.random() * 100) + 10 // Random review count
-      })) || [];
+      }));
       
       setProducts(transformedProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('category');
+
+      if (error) throw error;
+      
+      // Extract unique categories from array or string values
+      const uniqueCategories = new Set();
+      data?.forEach(item => {
+        if (Array.isArray(item.category)) {
+          item.category.forEach(cat => uniqueCategories.add(cat));
+        } else if (item.category) {
+          uniqueCategories.add(item.category);
+        }
+      });
+      
+      setCategories(Array.from(uniqueCategories).filter(Boolean));
+    } catch (error) {
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -270,48 +299,39 @@ const Index = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div 
-              className="bg-card p-8 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all"
-              onClick={() => navigate('/products?category=frame')}
-            >
-              <div className="w-16 h-16 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <span className="text-2xl">🖼️</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Photo Frames</h3>
-              <p className="text-muted-foreground mb-4">Premium frames in various styles and sizes</p>
-              <Button variant="outline">
-                Shop Frames
-              </Button>
-            </div>
-
-            <div 
-              className="bg-card p-8 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all"
-              onClick={() => navigate('/products?category=sticker')}
-            >
-              <div className="w-16 h-16 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <span className="text-2xl">🎨</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Wall Stickers</h3>
-              <p className="text-muted-foreground mb-4">Artistic decals to personalize your walls</p>
-              <Button variant="outline">
-                Shop Stickers
-              </Button>
-            </div>
-
-            <div 
-              className="bg-card p-8 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all"
-              onClick={() => navigate('/products?category=poster')}
-            >
-              <div className="w-16 h-16 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <span className="text-2xl">📜</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Posters</h3>
-              <p className="text-muted-foreground mb-4">Curated collection of art and photography prints</p>
-              <Button variant="outline">
-                Shop Posters
-              </Button>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {categories.map((category, index) => {
+              // Category emoji mapping
+              const categoryEmojis = {
+                'frame': '🖼️',
+                'sticker': '🎨',
+                'poster': '📜',
+                'anime figures': '🎭',
+                'collectible': '⭐',
+                'dc': '🦸',
+                'marvel': '🦸‍♂️',
+                'movies': '🎬',
+                'new arrivals': '🆕'
+              };
+              
+              const emoji = categoryEmojis[category.toLowerCase()] || '🛍️';
+              
+              return (
+                <div 
+                  key={index}
+                  className="bg-card p-6 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all"
+                  onClick={() => navigate(`/products?category=${encodeURIComponent(category)}`)}
+                >
+                  <div className="w-14 h-14 bg-primary rounded-full mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-2xl">{emoji}</span>
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-2 capitalize">{category}</h3>
+                  <Button variant="outline" size="sm">
+                    Shop Now
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
