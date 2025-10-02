@@ -62,13 +62,15 @@ const Index = () => {
 
       if (error) throw error;
       
-      // Extract unique categories from array or string values
+      // Extract unique categories from array or string values (trim spaces)
       const uniqueCategories = new Set();
       data?.forEach(item => {
         if (Array.isArray(item.category)) {
-          item.category.forEach(cat => uniqueCategories.add(cat));
+          item.category.forEach(cat => {
+            if (cat) uniqueCategories.add(cat.trim());
+          });
         } else if (item.category) {
-          uniqueCategories.add(item.category);
+          uniqueCategories.add(item.category.trim());
         }
       });
       

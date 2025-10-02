@@ -59,11 +59,11 @@ const ProductsPage = () => {
         description: product.description
       })) || [];
       
-      // Extract unique categories
+      // Extract unique categories (keep original case)
       const uniqueCategories = new Set(['all']);
       transformedProducts.forEach(product => {
         product.categoryArray.forEach(cat => {
-          if (cat) uniqueCategories.add(cat.toLowerCase());
+          if (cat) uniqueCategories.add(cat);
         });
       });
       setCategories(Array.from(uniqueCategories));
@@ -79,11 +79,11 @@ const ProductsPage = () => {
   const filterAndSortProducts = () => {
     let filtered = products;
 
-    // Filter by category
+    // Filter by category (case-insensitive and trim spaces)
     if (categoryFilter !== 'all') {
       filtered = filtered.filter(product => 
         product.categoryArray.some(cat => 
-          cat.toLowerCase() === categoryFilter.toLowerCase()
+          cat.trim().toLowerCase() === categoryFilter.trim().toLowerCase()
         )
       );
     }
@@ -92,7 +92,7 @@ const ProductsPage = () => {
     if (searchTerm) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.categoryArray.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        product.categoryArray.some(cat => cat.trim().toLowerCase().includes(searchTerm.toLowerCase())) ||
         (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
