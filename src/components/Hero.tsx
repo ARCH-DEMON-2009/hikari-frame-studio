@@ -5,36 +5,35 @@ import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
-    <section className="relative bg-gradient-to-br from-[hsl(var(--background))] via-[hsl(var(--deep-navy))] to-[hsl(var(--navy-light))] py-24 overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[hsl(var(--neon-teal))] rounded-full blur-[100px] animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-[hsl(var(--anime-red))] rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 right-1/3 w-48 h-48 bg-[hsl(var(--neon-pink))] rounded-full blur-[90px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+    <section className="relative bg-gradient-to-br from-[hsl(var(--background))] via-[hsl(var(--deep-navy))] to-[hsl(var(--navy-light))] py-32 overflow-hidden">
+      {/* Subtle Animated Background */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[hsl(var(--neon-teal))] rounded-full blur-[150px] animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[hsl(var(--anime-red))] rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+      {/* Subtle Grid Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Content */}
           <div className="text-center lg:text-left animate-fade-in">
-            <div className="inline-flex items-center bg-gradient-to-r from-[hsl(var(--anime-red)/0.2)] to-[hsl(var(--neon-teal)/0.2)] backdrop-blur-sm rounded-full px-6 py-3 mb-8 border border-[hsl(var(--neon-teal)/0.3)]">
-              <Sparkles className="w-5 h-5 text-[hsl(var(--neon-teal))] mr-2 animate-pulse" />
-              <span className="text-sm text-[hsl(var(--neon-teal))] font-bold uppercase tracking-wider">Premium Anime Collection</span>
+            <div className="inline-flex items-center bg-[hsl(var(--card)/0.5)] backdrop-blur-md rounded-full px-6 py-3 mb-10 border border-[hsl(var(--border))]">
+              <Sparkles className="w-4 h-4 text-[hsl(var(--neon-teal))] mr-2" />
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Premium Anime Collection</span>
             </div>
             
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-anime font-bold text-foreground mb-6 leading-tight uppercase">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-foreground mb-8 leading-tight">
               Light Up Your
-              <span className="block text-transparent bg-gradient-to-r from-[hsl(var(--anime-red))] via-[hsl(var(--neon-pink))] to-[hsl(var(--neon-teal))] bg-clip-text neon-glow-teal"> 
+              <span className="block mt-2 premium-text-gradient"> 
                 Anime World
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">
-              Premium posters, framed wall art, and collectible figures for true otaku. 
-              <span className="text-[hsl(var(--neon-teal))] font-semibold"> Transform your space into an anime sanctuary.</span>
+            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+              Premium posters, framed wall art, and collectible figures for discerning collectors. 
+              <span className="text-foreground font-medium"> Your ultimate anime destination.</span>
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
@@ -70,12 +69,12 @@ const Hero = () => {
             <div className="relative z-10 animate-scale-in">
               {/* Featured Product Card */}
               <div className="card-premium p-8 max-w-md mx-auto relative">
-                {/* Neon Border Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--anime-red))] via-[hsl(var(--neon-pink))] to-[hsl(var(--neon-teal))] rounded-xl blur-sm opacity-50"></div>
+                {/* Subtle Glow Border */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--anime-red)/0.2)] via-[hsl(var(--neon-pink)/0.2)] to-[hsl(var(--neon-teal)/0.2)] rounded-lg blur opacity-50"></div>
                 
                 <div className="relative bg-[hsl(var(--card))] rounded-lg p-6">
-                  <div className="aspect-square bg-gradient-to-br from-[hsl(var(--navy-lighter))] to-[hsl(var(--deep-navy))] rounded-lg mb-6 flex items-center justify-center border-2 border-[hsl(var(--neon-teal)/0.3)] overflow-hidden relative">
-                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(0,255,255,0.1)_50%,transparent_75%)] bg-[length:250%_250%] animate-[shimmer_3s_linear_infinite]"></div>
+                  <div className="aspect-square bg-gradient-to-br from-[hsl(var(--navy-lighter))] to-[hsl(var(--deep-navy))] rounded-lg mb-6 flex items-center justify-center border border-[hsl(var(--border))] overflow-hidden relative">
+                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_40%,rgba(255,255,255,0.03)_50%,transparent_60%)] bg-[length:200%_200%] animate-[shimmer_4s_linear_infinite]"></div>
                     <div className="text-8xl z-10">🎭</div>
                   </div>
                   <h3 className="font-display font-bold text-foreground mb-2 text-xl uppercase tracking-wider">Premium Anime Poster</h3>
@@ -99,9 +98,9 @@ const Hero = () => {
               </div>
             </div>
             
-            {/* Floating Elements */}
-            <div className="absolute -top-8 -right-8 w-24 h-24 bg-[hsl(var(--neon-teal))] rounded-lg opacity-20 blur-xl animate-pulse"></div>
-            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-[hsl(var(--anime-red))] rounded-lg opacity-20 blur-xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+            {/* Subtle Floating Elements */}
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-[hsl(var(--neon-teal))] rounded-full opacity-10 blur-3xl"></div>
+            <div className="absolute -bottom-12 -left-12 w-40 h-40 bg-[hsl(var(--anime-red))] rounded-full opacity-10 blur-3xl"></div>
           </div>
         </div>
 

@@ -12,7 +12,7 @@ import ProductCard from '../components/ProductCard';
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<{name: string, image: string}[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, isAdmin, signOut } = useAuth();
   const { getTotalItems } = useCart();
@@ -58,23 +58,29 @@ const Index = () => {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('category');
+        .select('category, images');
 
       if (error) throw error;
       
-      // Extract unique categories from array or string values (trim spaces)
-      const uniqueCategories = new Set();
+      // Extract unique categories with their first product image
+      const categoryMap = new Map<string, string>();
       data?.forEach(item => {
         if (Array.isArray(item.category)) {
           item.category.forEach(cat => {
-            if (cat) uniqueCategories.add(cat.trim());
+            if (cat && !categoryMap.has(cat.trim()) && item.images?.[0]) {
+              categoryMap.set(cat.trim(), item.images[0]);
+            }
           });
-        } else if (item.category) {
-          uniqueCategories.add(item.category.trim());
+        } else if (item.category && !categoryMap.has(item.category.trim()) && item.images?.[0]) {
+          categoryMap.set(item.category.trim(), item.images[0]);
         }
       });
       
-      setCategories(Array.from(uniqueCategories).filter(Boolean));
+      const categoriesWithImages = Array.from(categoryMap.entries())
+        .map(([name, image]) => ({ name, image }))
+        .filter(cat => cat.name);
+      
+      setCategories(categoriesWithImages);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -315,34 +321,34 @@ const Index = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {categories.map((category, index) => {
-              // Category emoji mapping
-              const categoryEmojis = {
-                'frame': '🖼️',
-                'sticker': '🎨',
-                'poster': '📜',
-                'anime figures': '🎭',
-                'collectible': '⭐',
-                'dc': '🦸',
-                'marvel': '🦸‍♂️',
-                'movies': '🎬',
-                'new arrivals': '🆕'
-              };
-              
-              const emoji = categoryEmojis[category.toLowerCase()] || '🛍️';
-              
               return (
                 <div 
                   key={index}
-                  className="card-premium p-8 text-center group cursor-pointer hover:scale-105 transition-all"
-                  onClick={() => navigate(`/products?category=${encodeURIComponent(category)}`)}
+                  className="group cursor-pointer"
+                  onClick={() => navigate(`/products?category=${encodeURIComponent(category.name)}`)}
                 >
-                  <div className="w-20 h-20 bg-gradient-to-br from-[hsl(var(--anime-red))] to-[hsl(var(--neon-teal))] rounded-xl mx-auto mb-4 flex items-center justify-center group-hover:rotate-6 transition-transform duration-300 shadow-[0_0_20px_hsl(var(--neon-teal)/0.3)]">
-                    <span className="text-4xl">{emoji}</span>
+                  <div className="relative overflow-hidden rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] transition-all duration-500 hover:border-[hsl(var(--neon-teal))] hover:shadow-[0_0_30px_hsl(var(--neon-teal)/0.3)]">
+                    {/* Product Image */}
+                    <div className="aspect-square overflow-hidden relative">
+                      <img 
+                        src={category.image} 
+                        alt={category.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--background))] via-transparent to-transparent opacity-60"></div>
+                      
+                      {/* Neon Border Effect on Hover */}
+                      <div className="absolute inset-0 border-2 border-transparent group-hover:border-[hsl(var(--neon-teal))] transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
+                    </div>
+                    
+                    {/* Category Name */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[hsl(var(--background))] to-transparent">
+                      <h3 className="text-lg font-display font-bold text-foreground uppercase tracking-wider text-center group-hover:text-[hsl(var(--neon-teal))] transition-colors">
+                        {category.name}
+                      </h3>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-display font-bold text-foreground mb-3 uppercase tracking-wider">{category}</h3>
-                  <Button className="btn-premium text-xs w-full">
-                    Explore
-                  </Button>
                 </div>
               );
             })}

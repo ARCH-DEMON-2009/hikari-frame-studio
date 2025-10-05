@@ -60,30 +60,34 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-gradient-to-r from-[hsl(var(--anime-red))] to-[hsl(var(--anime-red-glow))] text-primary-foreground hover:shadow-[0_0_20px_hsl(var(--anime-red)/0.6)] transition-all duration-300 px-8 py-3 rounded-lg font-bold uppercase tracking-wider;
+    @apply bg-gradient-to-r from-[hsl(var(--anime-red))] to-[hsl(var(--anime-red-glow))] text-white hover:shadow-[0_0_25px_hsl(var(--anime-red)/0.5)] transition-all duration-300 px-8 py-3 rounded-md font-semibold uppercase tracking-wide text-sm;
   }
 
   .btn-secondary {
-    @apply bg-gradient-to-r from-[hsl(var(--neon-teal))] to-[hsl(var(--neon-teal-glow))] text-primary-foreground hover:shadow-[0_0_20px_hsl(var(--neon-teal)/0.6)] transition-all duration-300 px-8 py-3 rounded-lg font-bold uppercase tracking-wider;
+    @apply bg-gradient-to-r from-[hsl(var(--neon-teal))] to-[hsl(var(--neon-teal-glow))] text-[hsl(var(--background))] hover:shadow-[0_0_25px_hsl(var(--neon-teal)/0.5)] transition-all duration-300 px-8 py-3 rounded-md font-semibold uppercase tracking-wide text-sm;
   }
 
   .btn-premium {
-    @apply border-2 border-[hsl(var(--neon-teal))] text-[hsl(var(--neon-teal))] hover:bg-[hsl(var(--neon-teal)/0.1)] hover:shadow-[0_0_20px_hsl(var(--neon-teal)/0.4)] transition-all duration-300 px-8 py-3 rounded-lg font-bold uppercase tracking-wider;
+    @apply border border-[hsl(var(--neon-teal))] text-[hsl(var(--neon-teal))] hover:bg-[hsl(var(--neon-teal)/0.1)] hover:shadow-[0_0_20px_hsl(var(--neon-teal)/0.3)] transition-all duration-300 px-8 py-3 rounded-md font-semibold uppercase tracking-wide text-sm backdrop-blur-sm;
   }
 
   .card-premium {
-    @apply bg-[hsl(var(--card))] backdrop-blur-sm border border-[hsl(var(--border))] rounded-xl shadow-2xl hover:shadow-[0_0_30px_hsl(var(--neon-teal)/0.2)] transition-all duration-500 overflow-hidden;
+    @apply bg-[hsl(var(--card))] backdrop-blur-sm border border-[hsl(var(--border))] rounded-lg shadow-xl hover:shadow-[0_0_30px_hsl(var(--neon-teal)/0.15)] transition-all duration-500 overflow-hidden;
   }
 
   .neon-glow-teal {
-    text-shadow: 0 0 10px hsl(var(--neon-teal)), 0 0 20px hsl(var(--neon-teal)/0.5);
+    text-shadow: 0 0 15px hsl(var(--neon-teal)), 0 0 30px hsl(var(--neon-teal)/0.4);
   }
 
   .neon-glow-red {
-    text-shadow: 0 0 10px hsl(var(--anime-red)), 0 0 20px hsl(var(--anime-red)/0.5);
+    text-shadow: 0 0 15px hsl(var(--anime-red)), 0 0 30px hsl(var(--anime-red)/0.4);
   }
 
   .gradient-anime {
     background: linear-gradient(135deg, hsl(var(--anime-red)) 0%, hsl(var(--neon-teal)) 100%);
+  }
+
+  .premium-text-gradient {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--premium-silver))] via-white to-[hsl(var(--premium-silver))];
   }
 }
