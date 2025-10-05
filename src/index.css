@@ -1,48 +1,48 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --background: 0 0% 7%;
+    --foreground: 0 0% 98%;
+    --card: 220 20% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 220 20% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 7%;
+    --secondary: 220 30% 12%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 220 20% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 180 80% 50%;
+    --accent-foreground: 0 0% 7%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 180 80% 50%;
     --radius: 0.5rem;
 
-    /* Hikari Brand Colors */
-    --cream-50: 42 100% 98%;
-    --cream-100: 39 100% 95%;
-    --cream-200: 36 60% 90%;
+    /* Premium Anime Colors */
+    --deep-navy: 220 40% 8%;
+    --navy-light: 220 30% 12%;
+    --navy-lighter: 220 25% 18%;
     
-    --blush-100: 350 100% 97%;
-    --blush-200: 348 83% 92%;
-    --blush-300: 346 77% 85%;
+    --anime-red: 0 90% 55%;
+    --anime-red-glow: 0 90% 65%;
     
-    --charcoal-500: 210 11% 25%;
-    --charcoal-600: 210 13% 20%;
-    --charcoal-700: 210 15% 15%;
+    --neon-teal: 180 80% 50%;
+    --neon-teal-glow: 180 90% 60%;
     
-    --gold-400: 45 93% 70%;
-    --gold-500: 43 96% 56%;
-    --gold-600: 41 96% 47%;
+    --neon-pink: 330 100% 60%;
+    --neon-purple: 270 100% 70%;
+    
+    --premium-gold: 45 100% 55%;
+    --premium-silver: 0 0% 80%;
   }
 
   * {
@@ -50,32 +50,40 @@
   }
 
   body {
-    @apply bg-cream-50 text-charcoal-700 font-body;
+    @apply bg-background text-foreground font-body;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    @apply font-display tracking-wide;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-charcoal-700 text-cream-50 hover:bg-charcoal-600 transition-all duration-300 px-6 py-3 rounded-lg font-medium;
+    @apply bg-gradient-to-r from-[hsl(var(--anime-red))] to-[hsl(var(--anime-red-glow))] text-primary-foreground hover:shadow-[0_0_20px_hsl(var(--anime-red)/0.6)] transition-all duration-300 px-8 py-3 rounded-lg font-bold uppercase tracking-wider;
   }
 
   .btn-secondary {
-    @apply bg-blush-200 text-charcoal-700 hover:bg-blush-300 transition-all duration-300 px-6 py-3 rounded-lg font-medium;
+    @apply bg-gradient-to-r from-[hsl(var(--neon-teal))] to-[hsl(var(--neon-teal-glow))] text-primary-foreground hover:shadow-[0_0_20px_hsl(var(--neon-teal)/0.6)] transition-all duration-300 px-8 py-3 rounded-lg font-bold uppercase tracking-wider;
   }
 
-  .btn-gold {
-    @apply bg-gold-500 text-charcoal-700 hover:bg-gold-600 transition-all duration-300 px-6 py-3 rounded-lg font-medium;
+  .btn-premium {
+    @apply border-2 border-[hsl(var(--neon-teal))] text-[hsl(var(--neon-teal))] hover:bg-[hsl(var(--neon-teal)/0.1)] hover:shadow-[0_0_20px_hsl(var(--neon-teal)/0.4)] transition-all duration-300 px-8 py-3 rounded-lg font-bold uppercase tracking-wider;
   }
 
-  .card-elegant {
-    @apply bg-white/80 backdrop-blur-sm border border-cream-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300;
+  .card-premium {
+    @apply bg-[hsl(var(--card))] backdrop-blur-sm border border-[hsl(var(--border))] rounded-xl shadow-2xl hover:shadow-[0_0_30px_hsl(var(--neon-teal)/0.2)] transition-all duration-500 overflow-hidden;
   }
 
-  .input-elegant {
-    @apply bg-white/60 border border-cream-200 rounded-lg px-4 py-3 focus:border-blush-300 focus:ring-2 focus:ring-blush-100 transition-all duration-200;
+  .neon-glow-teal {
+    text-shadow: 0 0 10px hsl(var(--neon-teal)), 0 0 20px hsl(var(--neon-teal)/0.5);
+  }
+
+  .neon-glow-red {
+    text-shadow: 0 0 10px hsl(var(--anime-red)), 0 0 20px hsl(var(--anime-red)/0.5);
+  }
+
+  .gradient-anime {
+    background: linear-gradient(135deg, hsl(var(--anime-red)) 0%, hsl(var(--neon-teal)) 100%);
   }
 }

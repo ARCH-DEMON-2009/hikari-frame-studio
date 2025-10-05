@@ -105,8 +105,9 @@ export default {
 				'scale-in': 'scale-in 0.3s ease-out',
 			},
 			fontFamily: {
-				'display': ['Playfair Display', 'serif'],
+				'display': ['Orbitron', 'Bebas Neue', 'sans-serif'],
 				'body': ['Inter', 'sans-serif'],
+				'anime': ['Bebas Neue', 'Impact', 'sans-serif'],
 			}
 		}
 	},

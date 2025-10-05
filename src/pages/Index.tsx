@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Heart, ShoppingCart, Menu, X, User, LogOut, Wrench, MessageSquare } from 'lucide-react';
+import { Search, Heart, ShoppingCart, Menu, X, User, LogOut, Wrench, MessageSquare, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -88,22 +88,25 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b">
+      <nav className="sticky top-0 z-50 bg-[hsl(var(--background)/0.95)] backdrop-blur-xl border-b border-[hsl(var(--border))]">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <Link to="/" className="text-2xl font-bold text-primary">
-                Hikari
+              <Link to="/" className="flex items-center gap-2 group">
+                <span className="text-3xl md:text-4xl font-anime font-bold text-transparent bg-gradient-to-r from-[hsl(var(--anime-red))] to-[hsl(var(--neon-teal))] bg-clip-text uppercase tracking-wider">
+                  Hikari
+                </span>
+                <Sparkles className="w-6 h-6 text-[hsl(var(--neon-teal))] group-hover:animate-pulse" />
               </Link>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="/products?category=Frame" className="text-foreground hover:text-primary transition-colors">Frames</Link>
-              <Link to="/products?category=Wall Stickers" className="text-foreground hover:text-primary transition-colors">Wall Stickers</Link>
-              <Link to="/products?category=Posters" className="text-foreground hover:text-primary transition-colors">Posters</Link>
-              <Link to="/customize" className="text-foreground hover:text-primary transition-colors">Custom</Link>
+              <Link to="/products?category=Frame" className="text-muted-foreground hover:text-[hsl(var(--neon-teal))] transition-all font-medium uppercase tracking-wide text-sm">Frames</Link>
+              <Link to="/products?category=Posters" className="text-muted-foreground hover:text-[hsl(var(--neon-teal))] transition-all font-medium uppercase tracking-wide text-sm">Posters</Link>
+              <Link to="/products?category=Wall Stickers" className="text-muted-foreground hover:text-[hsl(var(--neon-teal))] transition-all font-medium uppercase tracking-wide text-sm">Stickers</Link>
+              <Link to="/customize" className="text-muted-foreground hover:text-[hsl(var(--anime-red))] transition-all font-medium uppercase tracking-wide text-sm">Custom</Link>
             </div>
 
             {/* Search and Icons */}
@@ -241,32 +244,39 @@ const Index = () => {
       <Hero />
 
       {/* Quick Actions */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-          <Link to="/customize">
-            <Button variant="outline" className="w-full h-20 text-lg">
-              <Wrench className="w-6 h-6 mr-2" />
-              Customize Your Product
-            </Button>
+      <div className="container mx-auto px-4 py-12 bg-gradient-to-br from-[hsl(var(--deep-navy))] to-[hsl(var(--navy-light))]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <Link to="/customize" className="group">
+            <div className="card-premium p-8 h-full flex flex-col items-center justify-center text-center hover:scale-105 transition-transform">
+              <Wrench className="w-12 h-12 mb-4 text-[hsl(var(--neon-teal))] group-hover:rotate-12 transition-transform" />
+              <h3 className="text-xl font-display font-bold uppercase tracking-wider mb-2">Customize Your Product</h3>
+              <p className="text-muted-foreground text-sm">Upload your favorite anime art</p>
+            </div>
           </Link>
-          <Link to="/request-product">
-            <Button variant="outline" className="w-full h-20 text-lg">
-              <MessageSquare className="w-6 h-6 mr-2" />
-              Request a Product
-            </Button>
+          <Link to="/request-product" className="group">
+            <div className="card-premium p-8 h-full flex flex-col items-center justify-center text-center hover:scale-105 transition-transform">
+              <MessageSquare className="w-12 h-12 mb-4 text-[hsl(var(--anime-red))] group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl font-display font-bold uppercase tracking-wider mb-2">Request a Product</h3>
+              <p className="text-muted-foreground text-sm">Can't find what you need? Tell us!</p>
+            </div>
           </Link>
         </div>
       </div>
 
       {/* Featured Products */}
-      <section className="py-16 bg-gradient-subtle">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Featured Products
+      <section className="py-20 bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--deep-navy))] relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-anime font-bold text-foreground mb-6 uppercase tracking-wider">
+              <span className="text-transparent bg-gradient-to-r from-[hsl(var(--anime-red))] to-[hsl(var(--neon-teal))] bg-clip-text">
+                Premium Collection
+              </span>
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Discover our handpicked collection of premium photo frames, artistic wall stickers, and beautiful posters to transform your space.
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Handpicked anime posters, framed wall art, and collectibles for true otaku
             </p>
           </div>
 
@@ -293,11 +303,13 @@ const Index = () => {
       </section>
 
       {/* Categories */}
-      <section className="py-16 bg-muted/50">
+      <section className="py-20 bg-[hsl(var(--deep-navy))]">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Shop by Category
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-anime font-bold text-foreground mb-6 uppercase tracking-wider">
+              <span className="text-transparent bg-gradient-to-r from-[hsl(var(--neon-pink))] to-[hsl(var(--neon-teal))] bg-clip-text">
+                Shop by Category
+              </span>
             </h2>
           </div>
 
@@ -321,15 +333,15 @@ const Index = () => {
               return (
                 <div 
                   key={index}
-                  className="bg-card p-6 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all"
+                  className="card-premium p-8 text-center group cursor-pointer hover:scale-105 transition-all"
                   onClick={() => navigate(`/products?category=${encodeURIComponent(category)}`)}
                 >
-                  <div className="w-14 h-14 bg-primary rounded-full mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">{emoji}</span>
+                  <div className="w-20 h-20 bg-gradient-to-br from-[hsl(var(--anime-red))] to-[hsl(var(--neon-teal))] rounded-xl mx-auto mb-4 flex items-center justify-center group-hover:rotate-6 transition-transform duration-300 shadow-[0_0_20px_hsl(var(--neon-teal)/0.3)]">
+                    <span className="text-4xl">{emoji}</span>
                   </div>
-                  <h3 className="text-base font-semibold text-foreground mb-2 capitalize">{category}</h3>
-                  <Button variant="outline" size="sm">
-                    Shop Now
+                  <h3 className="text-lg font-display font-bold text-foreground mb-3 uppercase tracking-wider">{category}</h3>
+                  <Button className="btn-premium text-xs w-full">
+                    Explore
                   </Button>
                 </div>
               );
@@ -339,45 +351,62 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-muted text-foreground py-12">
+      <footer className="bg-[hsl(var(--background))] border-t border-[hsl(var(--border))] text-foreground py-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             <div>
-              <h3 className="text-xl font-bold mb-4">Hikari</h3>
-              <p className="text-muted-foreground mb-4">
-                Transform your space with our premium collection of frames, wall art, and decor.
+              <h3 className="text-2xl font-anime font-bold mb-4 uppercase text-transparent bg-gradient-to-r from-[hsl(var(--anime-red))] to-[hsl(var(--neon-teal))] bg-clip-text">Hikari</h3>
+              <p className="text-muted-foreground mb-6 leading-relaxed">
+                Light up your world with premium anime posters, framed art, and collectibles. For true otaku, by true fans.
               </p>
+              <div className="flex gap-4">
+                <a href="https://www.instagram.com/hikari2108202/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-lg flex items-center justify-center hover:border-[hsl(var(--neon-teal))] hover:shadow-[0_0_15px_hsl(var(--neon-teal)/0.3)] transition-all">
+                  <span className="text-[hsl(var(--neon-teal))]">📷</span>
+                </a>
+              </div>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Products</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><Link to="#" className="hover:text-primary transition-colors">Photo Frames</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Wall Stickers</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Posters</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Custom Orders</Link></li>
+              <h4 className="font-display font-bold mb-6 uppercase tracking-wider text-sm">Products</h4>
+              <ul className="space-y-3 text-muted-foreground">
+                <li><Link to="/products?category=Posters" className="hover:text-[hsl(var(--neon-teal))] transition-colors">Anime Posters</Link></li>
+                <li><Link to="/products?category=Frame" className="hover:text-[hsl(var(--neon-teal))] transition-colors">Framed Art</Link></li>
+                <li><Link to="/products?category=Wall Stickers" className="hover:text-[hsl(var(--neon-teal))] transition-colors">Wall Stickers</Link></li>
+                <li><Link to="/customize" className="hover:text-[hsl(var(--neon-teal))] transition-colors">Custom Orders</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><Link to="#" className="hover:text-primary transition-colors">Contact Us</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Shipping Info</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Returns</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Size Guide</Link></li>
+              <h4 className="font-display font-bold mb-6 uppercase tracking-wider text-sm">Support</h4>
+              <ul className="space-y-3 text-muted-foreground">
+                <li><Link to="#" className="hover:text-[hsl(var(--neon-teal))] transition-colors">Contact Us</Link></li>
+                <li><Link to="#" className="hover:text-[hsl(var(--neon-teal))] transition-colors">Fast Shipping</Link></li>
+                <li><Link to="#" className="hover:text-[hsl(var(--neon-teal))] transition-colors">Returns Policy</Link></li>
+                <li><Link to="#" className="hover:text-[hsl(var(--neon-teal))] transition-colors">Size Guide</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Connect</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><Link to="#" className="hover:text-primary transition-colors">Instagram</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Facebook</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Pinterest</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Newsletter</Link></li>
+              <h4 className="font-display font-bold mb-6 uppercase tracking-wider text-sm">Trust</h4>
+              <ul className="space-y-3 text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <span className="text-[hsl(var(--premium-gold))]">⭐</span>
+                  <span>4.9/5 Rating</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-[hsl(var(--neon-teal))]">✓</span>
+                  <span>Authentic Products</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-[hsl(var(--anime-red))]">🚀</span>
+                  <span>Fast Delivery</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-[hsl(var(--neon-pink))]">🔒</span>
+                  <span>Secure Checkout</span>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2025 Hikari. All rights reserved.</p>
+          <div className="border-t border-[hsl(var(--border))] mt-12 pt-8 text-center text-muted-foreground">
+            <p className="text-sm">&copy; 2025 Hikari - Light Up Your World with Anime. All rights reserved.</p>
           </div>
         </div>
       </footer>
