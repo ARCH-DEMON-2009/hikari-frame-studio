@@ -58,23 +58,26 @@ const Index = () => {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('category');
+        .select('category, images');
 
       if (error) throw error;
       
-      // Extract unique categories from array or string values (trim spaces)
-      const uniqueCategories = new Set();
+      // Extract unique categories with their first product image
+      const categoryMap = new Map();
       data?.forEach(item => {
-        if (Array.isArray(item.category)) {
-          item.category.forEach(cat => {
-            if (cat) uniqueCategories.add(cat.trim());
-          });
-        } else if (item.category) {
-          uniqueCategories.add(item.category.trim());
-        }
+        const cats = Array.isArray(item.category) ? item.category : [item.category];
+        const image = item.images?.[0] || '/placeholder.svg';
+        
+        cats.forEach(cat => {
+          if (cat && !categoryMap.has(cat.trim())) {
+            categoryMap.set(cat.trim(), image);
+          }
+        });
       });
       
-      setCategories(Array.from(uniqueCategories).filter(Boolean));
+      setCategories(
+        Array.from(categoryMap.entries()).map(([name, image]) => ({ name, image }))
+      );
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -302,38 +305,31 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {categories.map((category, index) => {
-              // Category emoji mapping
-              const categoryEmojis = {
-                'frame': '🖼️',
-                'sticker': '🎨',
-                'poster': '📜',
-                'anime figures': '🎭',
-                'collectible': '⭐',
-                'dc': '🦸',
-                'marvel': '🦸‍♂️',
-                'movies': '🎬',
-                'new arrivals': '🆕'
-              };
-              
-              const emoji = categoryEmojis[category.toLowerCase()] || '🛍️';
-              
-              return (
-                <div 
-                  key={index}
-                  className="bg-card p-6 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all"
-                  onClick={() => navigate(`/products?category=${encodeURIComponent(category)}`)}
-                >
-                  <div className="w-14 h-14 bg-primary rounded-full mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">{emoji}</span>
-                  </div>
-                  <h3 className="text-base font-semibold text-foreground mb-2 capitalize">{category}</h3>
-                  <Button variant="outline" size="sm">
-                    Shop Now
-                  </Button>
+            {categories.map((category, index) => (
+              <div 
+                key={index}
+                className="relative group cursor-pointer rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                onClick={() => navigate(`/products?category=${encodeURIComponent(category.name)}`)}
+              >
+                <div className="aspect-square relative">
+                  <img 
+                    src={category.image} 
+                    alt={category.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-all duration-300" />
+                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-gold-500 transition-all duration-300" />
                 </div>
-              );
-            })}
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
+                  <h3 className="text-lg font-display font-semibold text-cream-50 mb-2 capitalize">{category.name}</h3>
+                  <div className="transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                    <span className="inline-block px-4 py-2 bg-gold-500 text-charcoal-700 rounded-lg font-medium text-sm hover:bg-gold-600 transition-colors">
+                      Shop Now →
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
