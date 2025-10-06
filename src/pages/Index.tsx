@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Heart, ShoppingCart, Menu, X, User, LogOut, Wrench, MessageSquare } from 'lucide-react';
+import { Search, Heart, ShoppingCart, Menu, X, User, LogOut, Wrench, MessageSquare, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,7 +12,7 @@ import ProductCard from '../components/ProductCard';
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<{name: string, image: string}[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, isAdmin, signOut } = useAuth();
   const { getTotalItems } = useCart();
@@ -58,23 +58,29 @@ const Index = () => {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('category');
+        .select('category, images');
 
       if (error) throw error;
       
-      // Extract unique categories from array or string values (trim spaces)
-      const uniqueCategories = new Set();
+      // Extract unique categories with their first product image
+      const categoryMap = new Map<string, string>();
       data?.forEach(item => {
-        if (Array.isArray(item.category)) {
-          item.category.forEach(cat => {
-            if (cat) uniqueCategories.add(cat.trim());
-          });
-        } else if (item.category) {
-          uniqueCategories.add(item.category.trim());
-        }
+        const categories = Array.isArray(item.category) ? item.category : [item.category];
+        const image = item.images?.[0] || '/placeholder.svg';
+        
+        categories.forEach(cat => {
+          if (cat && !categoryMap.has(cat.trim())) {
+            categoryMap.set(cat.trim(), image);
+          }
+        });
       });
       
-      setCategories(Array.from(uniqueCategories).filter(Boolean));
+      const categoriesWithImages = Array.from(categoryMap.entries()).map(([name, image]) => ({
+        name,
+        image
+      }));
+      
+      setCategories(categoriesWithImages);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -93,8 +99,11 @@ const Index = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <Link to="/" className="text-2xl font-bold text-primary">
-                Hikari
+              <Link to="/" className="flex items-center gap-2">
+                <span className="text-3xl font-anime font-black premium-text-gradient uppercase tracking-tight">
+                  HIKARI
+                </span>
+                <Sparkles className="w-5 h-5 text-anime-red" />
               </Link>
             </div>
 
@@ -241,32 +250,46 @@ const Index = () => {
       <Hero />
 
       {/* Quick Actions */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           <Link to="/customize">
-            <Button variant="outline" className="w-full h-20 text-lg">
-              <Wrench className="w-6 h-6 mr-2" />
-              Customize Your Product
-            </Button>
+            <div className="card-premium p-6 h-full hover:scale-105 transition-all cursor-pointer group">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-anime-red to-anime-red-dark rounded-lg flex items-center justify-center group-hover:neon-glow-red transition-all">
+                  <Wrench className="w-7 h-7 text-premium-white" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-anime font-bold text-lg uppercase tracking-wide mb-1">Customize</h3>
+                  <p className="text-sm text-muted-foreground">Create your own design</p>
+                </div>
+              </div>
+            </div>
           </Link>
           <Link to="/request-product">
-            <Button variant="outline" className="w-full h-20 text-lg">
-              <MessageSquare className="w-6 h-6 mr-2" />
-              Request a Product
-            </Button>
+            <div className="card-premium p-6 h-full hover:scale-105 transition-all cursor-pointer group">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-neon-teal to-neon-teal-dark rounded-lg flex items-center justify-center group-hover:neon-glow-teal transition-all">
+                  <MessageSquare className="w-7 h-7 text-deep-navy" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-anime font-bold text-lg uppercase tracking-wide mb-1">Request</h3>
+                  <p className="text-sm text-muted-foreground">Can't find it? Ask us!</p>
+                </div>
+              </div>
+            </div>
           </Link>
         </div>
       </div>
 
       {/* Featured Products */}
-      <section className="py-16 bg-gradient-subtle">
+      <section className="py-20 bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Featured Products
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-anime font-black text-foreground mb-4 uppercase">
+              Featured <span className="premium-text-gradient">Collection</span>
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Discover our handpicked collection of premium photo frames, artistic wall stickers, and beautiful posters to transform your space.
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+              Premium anime art, collectibles & wall decor for passionate fans
             </p>
           </div>
 
@@ -293,91 +316,115 @@ const Index = () => {
       </section>
 
       {/* Categories */}
-      <section className="py-16 bg-muted/50">
+      <section className="py-20 bg-gradient-to-b from-muted/30 to-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Shop by Category
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-anime font-black text-foreground mb-4 uppercase">
+              Shop by <span className="premium-text-gradient">Category</span>
             </h2>
+            <p className="text-muted-foreground text-lg">Explore our curated collections</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {categories.map((category, index) => {
-              // Category emoji mapping
-              const categoryEmojis = {
-                'frame': '🖼️',
-                'sticker': '🎨',
-                'poster': '📜',
-                'anime figures': '🎭',
-                'collectible': '⭐',
-                'dc': '🦸',
-                'marvel': '🦸‍♂️',
-                'movies': '🎬',
-                'new arrivals': '🆕'
-              };
-              
-              const emoji = categoryEmojis[category.toLowerCase()] || '🛍️';
-              
-              return (
-                <div 
-                  key={index}
-                  className="bg-card p-6 text-center group cursor-pointer rounded-lg border hover:shadow-elegant transition-all"
-                  onClick={() => navigate(`/products?category=${encodeURIComponent(category)}`)}
-                >
-                  <div className="w-14 h-14 bg-primary rounded-full mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">{emoji}</span>
+            {categories.map((category, index) => (
+              <div 
+                key={index}
+                className="card-premium group cursor-pointer relative overflow-hidden"
+                onClick={() => navigate(`/products?category=${encodeURIComponent(category.name)}`)}
+              >
+                {/* Product Image */}
+                <div className="aspect-square overflow-hidden relative">
+                  <img 
+                    src={category.image} 
+                    alt={category.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-deep-navy via-deep-navy/50 to-transparent opacity-80"></div>
+                  
+                  {/* Category Name on Image */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="text-lg font-anime font-bold text-premium-white mb-2 capitalize uppercase tracking-wide">
+                      {category.name}
+                    </h3>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="bg-anime-red/90 text-premium-white border-anime-red hover:bg-anime-red hover:text-premium-white transition-all group-hover:neon-glow-red"
+                    >
+                      Explore →
+                    </Button>
                   </div>
-                  <h3 className="text-base font-semibold text-foreground mb-2 capitalize">{category}</h3>
-                  <Button variant="outline" size="sm">
-                    Shop Now
-                  </Button>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-muted text-foreground py-12">
+      <footer className="bg-gradient-to-b from-deep-navy to-midnight text-premium-white py-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             <div>
-              <h3 className="text-xl font-bold mb-4">Hikari</h3>
-              <p className="text-muted-foreground mb-4">
-                Transform your space with our premium collection of frames, wall art, and decor.
+              <div className="flex items-center gap-2 mb-4">
+                <h3 className="text-3xl font-anime font-black premium-text-gradient uppercase">Hikari</h3>
+                <Sparkles className="w-5 h-5 text-neon-teal" />
+              </div>
+              <p className="text-premium-gray mb-6 leading-relaxed">
+                Your ultimate destination for premium anime art, collectibles, and wall decor. Light up your world with anime.
               </p>
+              <a 
+                href="https://www.instagram.com/hikari.in_?igsh=MWZvcGV6dGhwbjR0cg==" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-neon-teal hover:text-neon-teal-light transition-colors font-semibold"
+              >
+                Follow us on Instagram →
+              </a>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Products</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><Link to="#" className="hover:text-primary transition-colors">Photo Frames</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Wall Stickers</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Posters</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Custom Orders</Link></li>
+              <h4 className="font-anime font-bold mb-6 text-lg uppercase tracking-wide">Products</h4>
+              <ul className="space-y-3 text-premium-gray">
+                <li><Link to="/products?category=Frame" className="hover:text-anime-red transition-colors">Anime Frames</Link></li>
+                <li><Link to="/products?category=Posters" className="hover:text-anime-red transition-colors">Posters</Link></li>
+                <li><Link to="/products?category=Wall Stickers" className="hover:text-anime-red transition-colors">Wall Stickers</Link></li>
+                <li><Link to="/customize" className="hover:text-anime-red transition-colors">Custom Orders</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><Link to="#" className="hover:text-primary transition-colors">Contact Us</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Shipping Info</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Returns</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Size Guide</Link></li>
+              <h4 className="font-anime font-bold mb-6 text-lg uppercase tracking-wide">Support</h4>
+              <ul className="space-y-3 text-premium-gray">
+                <li><Link to="#" className="hover:text-neon-teal transition-colors">Contact Us</Link></li>
+                <li><Link to="#" className="hover:text-neon-teal transition-colors">Shipping Info</Link></li>
+                <li><Link to="#" className="hover:text-neon-teal transition-colors">Returns Policy</Link></li>
+                <li><Link to="#" className="hover:text-neon-teal transition-colors">Track Order</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Connect</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><Link to="#" className="hover:text-primary transition-colors">Instagram</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Facebook</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Pinterest</Link></li>
-                <li><Link to="#" className="hover:text-primary transition-colors">Newsletter</Link></li>
+              <h4 className="font-anime font-bold mb-6 text-lg uppercase tracking-wide">Trust</h4>
+              <ul className="space-y-3 text-premium-gray">
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-neon-teal rounded-full"></div>
+                  <span>Secure Payments</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-anime-red rounded-full"></div>
+                  <span>Premium Quality</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-premium-gold rounded-full"></div>
+                  <span>Fast Shipping</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-neon-pink rounded-full"></div>
+                  <span>100% Authentic</span>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2025 Hikari. All rights reserved.</p>
+          <div className="border-t border-slate/30 mt-12 pt-8 text-center text-premium-gray">
+            <p className="font-medium">&copy; 2025 Hikari. All rights reserved. Made with ❤️ for anime fans.</p>
           </div>
         </div>
       </footer>
