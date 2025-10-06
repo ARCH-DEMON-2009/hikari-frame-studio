@@ -53,28 +53,27 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Premium Anime Colors
-				'deep-navy': 'hsl(var(--deep-navy))',
-				'midnight': 'hsl(var(--midnight))',
-				'slate': 'hsl(var(--slate))',
-				'anime-red': {
-					DEFAULT: 'hsl(var(--anime-red))',
-					dark: 'hsl(var(--anime-red-dark))',
-					light: 'hsl(var(--anime-red-light))',
+				// Hikari brand colors
+				cream: {
+					50: 'hsl(var(--cream-50))',
+					100: 'hsl(var(--cream-100))',
+					200: 'hsl(var(--cream-200))',
 				},
-				'neon-teal': {
-					DEFAULT: 'hsl(var(--neon-teal))',
-					dark: 'hsl(var(--neon-teal-dark))',
-					light: 'hsl(var(--neon-teal-light))',
+				blush: {
+					100: 'hsl(var(--blush-100))',
+					200: 'hsl(var(--blush-200))',
+					300: 'hsl(var(--blush-300))',
 				},
-				'neon-pink': 'hsl(var(--neon-pink))',
-				'neon-purple': 'hsl(var(--neon-purple))',
-				'premium-gold': {
-					DEFAULT: 'hsl(var(--premium-gold))',
-					light: 'hsl(var(--premium-gold-light))',
+				charcoal: {
+					500: 'hsl(var(--charcoal-500))',
+					600: 'hsl(var(--charcoal-600))',
+					700: 'hsl(var(--charcoal-700))',
 				},
-				'premium-white': 'hsl(var(--premium-white))',
-				'premium-gray': 'hsl(var(--premium-gray))',
+				gold: {
+					400: 'hsl(var(--gold-400))',
+					500: 'hsl(var(--gold-500))',
+					600: 'hsl(var(--gold-600))',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -106,8 +105,7 @@ export default {
 				'scale-in': 'scale-in 0.3s ease-out',
 			},
 			fontFamily: {
-				'anime': ['Orbitron', 'Bebas Neue', 'sans-serif'],
-				'display': ['Bebas Neue', 'sans-serif'],
+				'display': ['Playfair Display', 'serif'],
 				'body': ['Inter', 'sans-serif'],
 			}
 		}
