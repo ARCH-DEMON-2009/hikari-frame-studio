@@ -6,19 +6,22 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 import { useToast } from '@/hooks/use-toast';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+  const { addToRecentlyViewed } = useRecentlyViewed();
   const { toast } = useToast();
   
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   useEffect(() => {
     if (slug) {
@@ -61,6 +64,15 @@ const ProductDetailPage = () => {
       };
       
       setProduct(transformedProduct);
+      
+      // Add to recently viewed
+      addToRecentlyViewed({
+        id: data.id,
+        title: data.title,
+        price: data.price,
+        images: data.images || ['/placeholder.svg'],
+        slug: data.slug
+      });
     } catch (error) {
       console.error('Error fetching product:', error);
       toast({
@@ -71,6 +83,30 @@ const ProductDetailPage = () => {
       navigate('/products');
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const handleToggleWishlist = () => {
+    if (!product) return;
+    
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+      toast({
+        title: "Removed from wishlist",
+        description: `${product.name} removed from your wishlist.`,
+      });
+    } else {
+      addToWishlist({
+        id: Date.now().toString(),
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0]
+      });
+      toast({
+        title: "Added to wishlist",
+        description: `${product.name} added to your wishlist.`,
+      });
     }
   };
 
@@ -320,11 +356,11 @@ const ProductDetailPage = () => {
                 <Button
                   variant="outline"
                   size="lg"
-                  onClick={() => setIsWishlisted(!isWishlisted)}
+                  onClick={handleToggleWishlist}
                   className="flex-1"
                 >
-                  <Heart className={`w-4 h-4 mr-2 ${isWishlisted ? 'fill-current' : ''}`} />
-                  {isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}
+                  <Heart className={`w-4 h-4 mr-2 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
+                  {isInWishlist(product.id) ? 'Wishlisted' : 'Add to Wishlist'}
                 </Button>
                 <Button variant="outline" size="lg">
                   <Share className="w-4 h-4" />

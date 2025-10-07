@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Heart, ShoppingCart, Menu, X, User, LogOut, Wrench, MessageSquare } from 'lucide-react';
+import { Heart, ShoppingCart, Menu, X, User, LogOut, Wrench, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Hero from '../components/Hero';
 import ProductCard from '../components/ProductCard';
+import { ProductSearch } from '../components/ProductSearch';
+import { NewsletterSignup } from '../components/NewsletterSignup';
 
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -111,21 +113,8 @@ const Index = () => {
 
             {/* Search and Icons */}
             <div className="hidden md:flex items-center space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="pl-10 pr-4 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      const searchTerm = e.currentTarget.value.trim();
-                      if (searchTerm) {
-                        navigate(`/products?search=${encodeURIComponent(searchTerm)}`);
-                      }
-                    }
-                  }}
-                />
+              <div className="w-64">
+                <ProductSearch />
               </div>
               <Heart className="w-6 h-6 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
               <Link to="/cart" className="relative">
@@ -178,19 +167,7 @@ const Index = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-background border-t">
             <div className="container mx-auto px-4 py-4 space-y-4">
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="w-full px-3 py-2 border border-input rounded-md"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    const searchTerm = e.currentTarget.value.trim();
-                    if (searchTerm) {
-                      navigate(`/products?search=${encodeURIComponent(searchTerm)}`);
-                    }
-                  }
-                }}
-              />
+              <ProductSearch />
               <div className="flex flex-col space-y-2">
                 <Link to="/products?category=Frame" className="text-foreground hover:text-primary py-2">Frames</Link>
                 <Link to="/products?category=Wall Stickers" className="text-foreground hover:text-primary py-2">Wall Stickers</Link>
@@ -337,6 +314,9 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-muted text-foreground py-12">
         <div className="container mx-auto px-4">
+          <div className="mb-12 max-w-md mx-auto md:mx-0">
+            <NewsletterSignup />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-xl font-bold mb-4">Hikari</h3>
