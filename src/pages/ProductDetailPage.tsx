@@ -9,6 +9,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useToast } from '@/hooks/use-toast';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import ShareButton from '@/components/ShareButton';
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -362,9 +363,10 @@ const ProductDetailPage = () => {
                   <Heart className={`w-4 h-4 mr-2 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                   {isInWishlist(product.id) ? 'Wishlisted' : 'Add to Wishlist'}
                 </Button>
-                <Button variant="outline" size="lg">
-                  <Share className="w-4 h-4" />
-                </Button>
+                <ShareButton 
+                  title={product.name}
+                  description={product.description}
+                />
               </div>
 
               {product.category?.toLowerCase().includes('frame') && (

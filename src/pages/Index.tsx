@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Heart, ShoppingCart, Menu, X, User, LogOut, Wrench, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const { user, isAdmin, signOut } = useAuth();
   const { getTotalItems } = useCart();
+  const { items: wishlistItems } = useWishlist();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -116,7 +118,14 @@ const Index = () => {
               <div className="w-64">
                 <ProductSearch />
               </div>
-              <Heart className="w-6 h-6 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
+              <Link to="/wishlist" className="relative">
+                <Heart className="w-6 h-6 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
+                {wishlistItems.length > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                    {wishlistItems.length}
+                  </Badge>
+                )}
+              </Link>
               <Link to="/cart" className="relative">
                 <ShoppingCart className="w-6 h-6 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
                 {getTotalItems() > 0 && (
