@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { customer, items, paymentMethod, total, subtotal, deliveryCharge, codCharge, discountAmount } = await req.json();
+    const { customer, items, paymentMethod } = await req.json();
     
     console.log('Creating order with:', { customer, items, paymentMethod });
 
@@ -43,6 +43,23 @@ serve(async (req) => {
       }
     }
 
+    // Fetch shipping settings from database
+    const { data: settings } = await supabaseService
+      .from('settings')
+      .select('key, value')
+      .in('key', ['shipping_cost', 'free_shipping_threshold', 'cod_charge']);
+    
+    interface SettingsMap {
+      shipping_cost?: number;
+      free_shipping_threshold?: number;
+      cod_charge?: number;
+    }
+    
+    const settingsMap: SettingsMap = {};
+    settings?.forEach(setting => {
+      settingsMap[setting.key as keyof SettingsMap] = parseFloat(setting.value);
+    });
+    
     interface CartItem {
       price: number;
       quantity: number;
@@ -51,45 +68,29 @@ serve(async (req) => {
       name: string;
       image: string;
     }
-
-    // Create Razorpay order if payment method is ONLINE
-    let razorpayOrderId = null;
-    if (paymentMethod === 'ONLINE') {
-      const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID');
-      const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
-      
-      if (!razorpayKeyId || !razorpayKeySecret) {
-        throw new Error('Razorpay credentials not configured');
-      }
-
-      // Create Razorpay order
-      const razorpayResponse = await fetch('https://api.razorpay.com/v1/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Basic ' + btoa(`${razorpayKeyId}:${razorpayKeySecret}`)
-        },
-        body: JSON.stringify({
-          amount: Math.round(total * 100), // Convert to paise
-          currency: 'INR',
-          receipt: `order_${Date.now()}`,
-          notes: {
-            customer_name: customer.name,
-            customer_email: customer.email
-          }
-        })
-      });
-
-      if (!razorpayResponse.ok) {
-        const errorData = await razorpayResponse.json();
-        console.error('Razorpay order creation failed:', errorData);
-        throw new Error('Failed to create payment order');
-      }
-
-      const razorpayOrder = await razorpayResponse.json();
-      razorpayOrderId = razorpayOrder.id;
-      console.log('Razorpay order created:', razorpayOrderId);
+    
+    // Calculate pricing
+    const subtotal = (items as CartItem[]).reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0);
+    
+    // Apply shipping based on settings
+    const shippingCost = settingsMap.shipping_cost || 50;
+    const freeShippingThreshold = settingsMap.free_shipping_threshold || 1000;
+    const codChargeAmount = settingsMap.cod_charge || 30;
+    
+    const deliveryCharge = subtotal >= freeShippingThreshold ? 0 : shippingCost;
+    const codCharge = paymentMethod === 'COD' ? codChargeAmount : 0;
+    
+    // Apply discount for 5+ frames
+    let discountAmount = 0;
+    const totalFrames = (items as CartItem[])
+      .filter((item: CartItem) => item.category?.toLowerCase().includes('frame'))
+      .reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+    
+    if (totalFrames >= 5) {
+      discountAmount = 50;
     }
+    
+    const total = subtotal + deliveryCharge + codCharge - discountAmount;
 
     // Create order in database
     const orderData = {
@@ -104,9 +105,7 @@ serve(async (req) => {
       cod_charge: codCharge,
       discount_amount: discountAmount,
       total,
-      status: paymentMethod === 'ONLINE' ? 'PENDING' : 'PLACED',
-      payment_status: paymentMethod === 'ONLINE' ? 'PENDING' : 'COD',
-      razorpay_order_id: razorpayOrderId
+      status: 'PLACED'
     };
 
     const { data: order, error: orderError } = await supabaseService
@@ -142,11 +141,15 @@ serve(async (req) => {
       throw itemsError;
     }
 
-    // Return order details with Razorpay order ID for online payment
+    // Only COD orders are processed now - online payment coming soon
+    if (paymentMethod !== 'COD') {
+      throw new Error('Only Cash on Delivery is available at the moment. Online payment coming soon.');
+    }
+
+    // COD - return order details
     return new Response(JSON.stringify({ 
       success: true, 
       orderId: order.id,
-      razorpayOrderId: razorpayOrderId,
       discountApplied: discountAmount > 0
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
