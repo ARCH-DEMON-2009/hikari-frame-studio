@@ -2,7 +2,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import { useAuth } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import './index.css';
 
 function DiwaliThemeLoader({ isDiwaliMode }: { isDiwaliMode: boolean }) {
   React.useEffect(() => {
@@ -19,9 +20,10 @@ function DiwaliThemeLoader({ isDiwaliMode }: { isDiwaliMode: boolean }) {
   return null;
 }
 
-const Main = () => {
+function MainContent() {
   const { isAdmin } = useAuth();
   const [isDiwaliMode, setIsDiwaliMode] = React.useState(false);
+  
   return (
     <>
       <DiwaliThemeLoader isDiwaliMode={isDiwaliMode} />
@@ -36,6 +38,15 @@ const Main = () => {
       <App />
     </>
   );
-};
+}
 
-createRoot(document.getElementById('root')).render(<Main />);
+const root = document.getElementById('root');
+if (!root) throw new Error('Root element not found');
+
+createRoot(root).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <MainContent />
+    </AuthProvider>
+  </React.StrictMode>
+);
