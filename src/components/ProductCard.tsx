@@ -30,10 +30,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
   const navigate = useNavigate();
 
   const handleAddToCart = () => {
-    const displayCategory = Array.isArray(product.category) 
-      ? product.category[0] 
+    const displayCategory = Array.isArray(product.category)
+      ? product.category[0]
       : product.category;
-      
+
     addItem({
       productId: product.id,
       name: product.name,
@@ -42,7 +42,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
       image: product.image,
       category: displayCategory
     });
-    
+
     toast({
       title: "Added to cart",
       description: `${product.name} has been added to your cart.`,
@@ -55,54 +55,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
 
   const handleBuyNow = () => {
     // Add item to cart and go directly to checkout
-    const displayCategory = Array.isArray(product.category) 
-      ? product.category[0] 
+    const displayCategory = Array.isArray(product.category)
+      ? product.category[0]
       : product.category;
-      
-    const cartItem = {
+    addItem({
       productId: product.id,
       name: product.name,
       price: product.price,
       quantity: 1,
       image: product.image,
-      category: displayCategory,
-    };
-    
-    addItem(cartItem);
-    navigate('/checkout');
-    
-    toast({
-      title: "Product added to cart",
-      description: `${product.name} has been added and you're being redirected to checkout.`,
+      category: displayCategory
     });
+    navigate('/checkout');
   };
 
-  const toggleWishlist = () => {
-    setIsWishlisted(!isWishlisted);
-  };
-
-  const handleProductClick = () => {
-    // Use slug if available, otherwise use ID
-    const identifier = product.slug || product.id;
-    navigate(`/product/${identifier}`);
-  };
-
-  if (viewMode === 'list') {
-    return (
-      <div 
-        className="card-elegant p-4 group cursor-pointer animate-fade-in flex gap-4"
-        onClick={handleProductClick}
-      >
-        <div className="w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-cream-200 to-blush-100">
-          <img
-            src={product.image}
-            alt={product.name}
-            loading="lazy"
-            className="w-full h-full object-cover"
-          />
+    // ...existing code...
+    // Remove duplicate/invalid JSX blocks above
         </div>
-        <div className="flex-1 space-y-2">
-          <div className="flex justify-between">
+      </div>
+    );
             <h3 className="font-display font-semibold text-charcoal-700">{product.name}</h3>
             <button
               onClick={(e) => {
@@ -177,7 +148,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
 
   return (
     <div
-      className="card-elegant p-4 group cursor-pointer animate-fade-in"
+      className={`card-elegant product p-4 group cursor-pointer animate-fade-in ${viewMode === 'list' ? 'flex flex-row' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleProductClick}
@@ -221,7 +192,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
                 handleAddToCart();
               }}
               variant="outline"
-              className="flex-1 text-sm py-2"
+              className="flex-1 text-sm py-2 add-to-cart"
             >
               <ShoppingCart className="w-4 h-4 mr-1" />
               Add to Cart
@@ -231,7 +202,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
                 e.stopPropagation();
                 handleBuyNow();
               }}
-              className="flex-1 btn-primary text-sm py-2"
+              className="flex-1 btn-primary text-sm py-2 buy-now"
             >
               Buy Now
             </Button>
@@ -290,7 +261,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
 
         {/* Price */}
         <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-charcoal-700">
+          <span className="price text-lg font-bold text-charcoal-700" data-price={product.price}>
             ₹{product.price}
           </span>
           <span className="text-sm text-charcoal-500">
