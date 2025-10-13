@@ -110,7 +110,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-charcoal-700">₹{product.price}</span>
+            <span className="price text-lg font-bold text-charcoal-700" data-price={product.price}>₹{product.price}</span>
             <div className="flex gap-2">
               <Button
                 onClick={(e) => {
@@ -118,9 +118,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
                   handleAddToCart();
                 }}
                 variant="secondary"
-                className="text-sm"
+                className="text-sm add-to-cart"
               >
                 Add to Cart
+              </Button>
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBuyNow();
+                }}
+                variant="secondary"
+                className="text-sm buy-now"
+              >
+                Buy Now
               </Button>
               {(() => {
                 const categoryStr = Array.isArray(product.category) 
