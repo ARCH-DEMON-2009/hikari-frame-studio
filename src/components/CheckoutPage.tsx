@@ -113,15 +113,6 @@ const CheckoutPage = () => {
       return;
     }
 
-    if (paymentMethod === 'ONLINE') {
-      toast({
-        title: "Coming Soon",
-        description: "Online payment will be available soon. Please use Cash on Delivery for now.",
-        variant: "default",
-      });
-      return;
-    }
-
     setIsProcessing(true);
     try {
       const orderData = {
@@ -145,12 +136,77 @@ const CheckoutPage = () => {
         throw new Error(data.error || 'Failed to create order');
       }
 
-      clearCart();
-      toast({
-        title: "Order Placed Successfully!",
-        description: "Your order will be delivered in 3-5 business days",
-      });
-      navigate('/orders');
+      // If online payment, initiate Razorpay
+      if (paymentMethod === 'ONLINE') {
+        const options = {
+          key: data.razorpayKeyId,
+          amount: data.amount,
+          currency: 'INR',
+          name: 'Hikari Frame Studio',
+          description: 'Order Payment',
+          order_id: data.razorpayOrderId,
+          handler: async function (response: any) {
+            try {
+              // Verify payment
+              const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-payment', {
+                body: {
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                }
+              });
+
+              if (verifyError) throw verifyError;
+              if (!verifyData.success) {
+                throw new Error(verifyData.error || 'Payment verification failed');
+              }
+
+              clearCart();
+              toast({
+                title: "Payment Successful!",
+                description: "Your order has been placed successfully",
+              });
+              navigate('/orders');
+            } catch (error) {
+              console.error('Payment verification error:', error);
+              toast({
+                title: "Payment Verification Failed",
+                description: error?.message || "Please contact support",
+                variant: "destructive",
+              });
+            }
+          },
+          prefill: {
+            name: customerInfo.name,
+            email: customerInfo.email,
+            contact: customerInfo.phone,
+          },
+          theme: {
+            color: '#8B7355',
+          },
+          modal: {
+            ondismiss: function() {
+              setIsProcessing(false);
+              toast({
+                title: "Payment Cancelled",
+                description: "You cancelled the payment",
+                variant: "default",
+              });
+            }
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+      } else {
+        // COD order
+        clearCart();
+        toast({
+          title: "Order Placed Successfully!",
+          description: "Your order will be delivered in 3-5 business days",
+        });
+        navigate('/orders');
+      }
       
     } catch (error) {
       console.error('Error placing order:', error);
@@ -159,7 +215,6 @@ const CheckoutPage = () => {
         description: error?.message || "Please try again or contact support",
         variant: "destructive",
       });
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -266,14 +321,14 @@ const CheckoutPage = () => {
                       </div>
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 p-4 border border-cream-200 rounded-lg opacity-60">
-                    <RadioGroupItem value="ONLINE" id="online" disabled />
-                    <Label htmlFor="online" className="flex-1 cursor-not-allowed">
+                  <div className="flex items-center space-x-2 p-4 border border-cream-200 rounded-lg">
+                    <RadioGroupItem value="ONLINE" id="online" />
+                    <Label htmlFor="online" className="flex-1 cursor-pointer">
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="font-medium">Online Payment</div>
                           <div className="text-sm text-charcoal-600">
-                            PhonePe Payment Gateway - Coming Soon
+                            Pay securely with Razorpay (No extra charges)
                           </div>
                         </div>
                         <CreditCard className="w-5 h-5 text-charcoal-400" />
