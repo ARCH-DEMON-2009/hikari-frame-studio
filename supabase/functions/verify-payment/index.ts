@@ -23,12 +23,21 @@ serve(async (req) => {
       throw new Error('Razorpay key secret not configured');
     }
 
-    // Verify signature
-    const crypto = await import('node:crypto');
-    const expectedSignature = crypto
-      .createHmac('sha256', razorpayKeySecret)
-      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-      .digest('hex');
+    // Verify signature using Web Crypto API (works in Deno)
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(razorpayKeySecret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+
+    const dataToSign = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(dataToSign));
+    const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
 
     if (expectedSignature !== razorpay_signature) {
       console.error('Invalid signature verification');
